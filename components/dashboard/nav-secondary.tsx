@@ -1,7 +1,7 @@
 "use client"
 
-import * as React from "react"
-
+import Link from "next/link"
+import { usePathname } from "next/navigation"
 import {
   SidebarGroup,
   SidebarGroupContent,
@@ -9,6 +9,7 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/ui/sidebar"
+import { SidebarLinkHint } from "@/components/dashboard/sidebar-link-hint"
 
 export function NavSecondary({
   items,
@@ -20,17 +21,24 @@ export function NavSecondary({
     icon: React.ReactNode
   }[]
 } & React.ComponentPropsWithoutRef<typeof SidebarGroup>) {
+  const pathname = usePathname()
+
   return (
     <SidebarGroup {...props}>
       <SidebarGroupContent>
         <SidebarMenu>
           {items.map((item) => (
             <SidebarMenuItem key={item.title}>
-              <SidebarMenuButton asChild>
-                <a href={item.url}>
+              <SidebarMenuButton
+                asChild
+                tooltip={item.title}
+                isActive={pathname === item.url && pathname !== "/dashboard"}
+              >
+                <Link href={item.url} prefetch={false}>
                   {item.icon}
                   <span>{item.title}</span>
-                </a>
+                  <SidebarLinkHint />
+                </Link>
               </SidebarMenuButton>
             </SidebarMenuItem>
           ))}
