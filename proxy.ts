@@ -34,8 +34,14 @@ export function proxy(request: NextRequest) {
     return NextResponse.redirect(new URL("/auth/login", request.url));
   }
 
-  // User has no token and is trying to access dashboard -> redirect to login
-  if (!hasToken && pathname.startsWith("/dashboard")) {
+  // User has no token and is trying to access protected routes -> redirect to login
+  const protectedPaths = ["/dashboard", "/perfil", "/billing"];
+  if (
+    !hasToken &&
+    protectedPaths.some(
+      (p) => pathname === p || pathname.startsWith(`${p}/`)
+    )
+  ) {
     return NextResponse.redirect(new URL("/auth/login", request.url));
   }
 
@@ -46,6 +52,10 @@ export const config = {
   matcher: [
     "/",
     "/dashboard/:path*",
+    "/perfil",
+    "/perfil/:path*",
+    "/billing",
+    "/billing/:path*",
     "/auth/login",
     "/auth/register",
     "/auth/signup",
