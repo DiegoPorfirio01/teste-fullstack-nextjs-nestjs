@@ -1,0 +1,48 @@
+---
+description: Convenções do projeto — Next.js, shadcn, serverFetch, types, schemas, Server Actions, LinkHint. Sempre aplicar.
+alwaysApply: true
+---
+
+# Orientações do Projeto teste-adv
+
+**OBRIGATÓRIO:** Consulte `.agents/skills/next-best-practices/` e `.agents/skills/shadcn/` antes de implementar.
+
+## Fetch na API
+
+- Use **`serverFetch`** (`lib/server-fetch.ts`) + **`routes`** (`api-routes.ts`) para todas as requisições server-side.
+- Nunca use `fetch` direto em Server Components ou Server Actions — `serverFetch` repassa cookies automaticamente.
+
+```ts
+import { routes } from "@/api-routes";
+import { serverFetch } from "@/lib/server-fetch";
+const res = await serverFetch(routes.auth.login, { method: "POST", ... });
+```
+
+## Server Actions
+
+- Mutação/lógica server: `actions/` com `"use server";` no topo.
+- Validar `FormData` com schemas de `schemas/`, tipar com `types/`, chamar API via `serverFetch(routes.*)`.
+
+## Estrutura de arquivos
+
+| Conteúdo | Local |
+|----------|-------|
+| Tipos e interfaces | `types/index.ts` |
+| Schemas Zod | `schemas/*.ts` |
+| Server Actions | `actions/*.ts` |
+| URLs da API | `api-routes.ts` |
+| Constantes | `constants/index.ts` |
+
+## Navegação na sidebar
+
+- Links com indicador de loading: usar `LinkHint` dentro de `Link` (`components/dashboard/link-hint.tsx`).
+- Padrão: `<Link href={...}><... /><LinkHint /></Link>`.
+
+## shadcn/ui
+
+- Componentes existentes primeiro; `FieldGroup` + `Field` em forms; `gap-*` (nunca `space-y-*`); `size-*` quando w=h; `cn()` para classes condicionais.
+- CLI: `pnpm dlx shadcn@latest add <component>`.
+
+## Outros
+
+- Env: `lib/env.ts` (Zod); constantes: `constants/index.ts`; breadcrumbs: `ROUTE_LABELS`; formulários: `useActionState` + Server Action + schema.
