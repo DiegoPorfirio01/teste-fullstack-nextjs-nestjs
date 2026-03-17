@@ -9,7 +9,6 @@ import { JwtAuthGuard } from './guards/jwt-auth.guard';
 import { HealthModule } from './health/health.module';
 import { MiddlewareModule } from './middleware/middleware.module';
 import { ObservabilityMiddleware } from './middleware/observability.middleware';
-
 @Module({
   imports: [
     ConfigModule.forRoot({ isGlobal: true }),
