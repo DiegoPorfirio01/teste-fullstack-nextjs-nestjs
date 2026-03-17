@@ -4,6 +4,12 @@ export const routes = {
   auth: {
     register: `${env.NEXT_PUBLIC_API_URL}/auth/register`,
     login: `${env.NEXT_PUBLIC_API_URL}/auth/login`,
+    updatePassword: `${env.NEXT_PUBLIC_API_URL}/auth/password`,
+    deleteAccount: `${env.NEXT_PUBLIC_API_URL}/auth/me`,
+    profile: `${env.NEXT_PUBLIC_API_URL}/auth/profile`,
+  },
+  credits: {
+    buy: `${env.NEXT_PUBLIC_API_URL}/credits/buy`,
   },
 
   wallet: {
