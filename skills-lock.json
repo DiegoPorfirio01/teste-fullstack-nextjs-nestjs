@@ -11,6 +11,11 @@
       "sourceType": "github",
       "computedHash": "a94b83ddcd2ff1c30722577f693b1bfe32f2e1a83abdd6c08c2d6cc6753b53c8"
     },
+    "sentry-nextjs-sdk": {
+      "source": "getsentry/sentry-for-ai",
+      "sourceType": "github",
+      "computedHash": "f663f60518aa159aadd4c9ee4b29479a0941a60e88ebf00528e806c987293e6d"
+    },
     "shadcn": {
       "source": "shadcn/ui",
       "sourceType": "github",
