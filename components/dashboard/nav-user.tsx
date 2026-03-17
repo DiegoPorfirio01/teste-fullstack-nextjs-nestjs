@@ -1,5 +1,6 @@
 "use client"
 
+import Link from "next/link"
 import {
   Avatar,
   AvatarFallback,
@@ -20,7 +21,13 @@ import {
   SidebarMenuItem,
   useSidebar,
 } from "@/components/ui/sidebar"
-import { EllipsisVerticalIcon, CircleUserRoundIcon, LogOutIcon } from "lucide-react"
+import { LinkHint } from "@/components/dashboard/link-hint"
+import {
+  EllipsisVerticalIcon,
+  CircleUserRoundIcon,
+  LogOutIcon,
+  CreditCardIcon,
+} from "lucide-react"
 
 export function NavUser({
   user,
@@ -40,7 +47,7 @@ export function NavUser({
           <DropdownMenuTrigger asChild>
             <SidebarMenuButton
               size="lg"
-              className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
+              className="cursor-pointer data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
             >
               <Avatar className="h-8 w-8 rounded-lg grayscale">
                 <AvatarImage src={user.avatar} alt={user.name} />
@@ -77,14 +84,23 @@ export function NavUser({
             </DropdownMenuLabel>
             <DropdownMenuSeparator />
             <DropdownMenuGroup>
-              <DropdownMenuItem>
-                <CircleUserRoundIcon
-                />
-                Conta
+              <DropdownMenuItem asChild className="cursor-pointer">
+                <Link href="/perfil" prefetch={false}>
+                  <CircleUserRoundIcon />
+                  Conta
+                  <LinkHint />
+                </Link>
+              </DropdownMenuItem>
+              <DropdownMenuItem asChild className="cursor-pointer">
+                <Link href="/billing" prefetch={false}>
+                  <CreditCardIcon />
+                  Billing
+                  <LinkHint />
+                </Link>
               </DropdownMenuItem>
             </DropdownMenuGroup>
             <DropdownMenuSeparator />
-            <DropdownMenuItem>
+            <DropdownMenuItem className="cursor-pointer">
               <LogOutIcon
               />
               Sair
