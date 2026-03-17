@@ -1,0 +1,43 @@
+# Dependencies
+node_modules
+.pnpm-store
+
+# Build output
+dist
+coverage
+*.tsbuildinfo
+
+# Git
+.git
+.gitignore
+
+# IDE
+.vscode
+.idea
+*.swp
+*.swo
+
+# Environment
+.env
+.env.*
+!.env.example
+
+# Logs
+*.log
+npm-debug.log*
+pnpm-debug.log*
+
+# Test
+test
+*.spec.ts
+jest.config.js
+test/
+
+# Documentation (optional, reduces image size)
+docs
+*.md
+!README.md
+
+# Misc
+.DS_Store
+Thumbs.db
