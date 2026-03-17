@@ -30,6 +30,10 @@ export function proxy(request: NextRequest) {
     return NextResponse.redirect(new URL("/dashboard", request.url));
   }
 
+  if (!hasToken && pathname === "/") {
+    return NextResponse.redirect(new URL("/auth/login", request.url));
+  }
+
   // User has no token and is trying to access dashboard -> redirect to login
   if (!hasToken && pathname.startsWith("/dashboard")) {
     return NextResponse.redirect(new URL("/auth/login", request.url));
