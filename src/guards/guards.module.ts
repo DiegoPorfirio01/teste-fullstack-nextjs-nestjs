@@ -4,8 +4,6 @@ import { AuthModule } from '../auth/auth.module';
 import { CustomThrottlerGuard } from './custom-throttler.guard';
 import { JwtAuthGuard } from './jwt-auth.guard';
 import { RoleGuard } from './role.guard';
-import { SessionGuard } from './session.guard';
-
 @Module({
   imports: [
     AuthModule,
@@ -27,7 +25,7 @@ import { SessionGuard } from './session.guard';
       },
     ]),
   ],
-  providers: [CustomThrottlerGuard, JwtAuthGuard, RoleGuard, SessionGuard],
-  exports: [CustomThrottlerGuard, JwtAuthGuard, RoleGuard, SessionGuard],
+  providers: [CustomThrottlerGuard, JwtAuthGuard, RoleGuard],
+  exports: [CustomThrottlerGuard, JwtAuthGuard, RoleGuard],
 })
 export class GuardsModule {}

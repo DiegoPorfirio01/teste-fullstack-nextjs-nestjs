@@ -1,8 +1,7 @@
 import { createParamDecorator, ExecutionContext } from '@nestjs/common';
 import type { JwtUser } from '../auth/jwt.strategy';
-import type { UserSession } from '../auth/auth.service';
 
-export type CurrentUserType = JwtUser | UserSession['user'];
+export type CurrentUserType = JwtUser;
 
 export const CurrentUser = createParamDecorator(
   (_data: unknown, ctx: ExecutionContext) => {
