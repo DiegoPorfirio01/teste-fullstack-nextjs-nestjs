@@ -1,11 +1,8 @@
-import { HttpService } from '@nestjs/axios';
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
-import { firstValueFrom } from 'rxjs';
-import { serviceConfig } from '../config/gateway.config';
+import { UsersService } from '../users/users.service';
 
-export interface UserSession {
-  valid: boolean;
+export interface LoginResponse {
   user: {
     id: string;
     email: string;
@@ -13,11 +10,7 @@ export interface UserSession {
     lastName: string;
     role: string;
     status: string;
-  } | null;
-}
-
-export interface AuthResponse {
-  user: Pick<UserSession, 'user'>;
+  };
   accessToken: string;
 }
 
@@ -25,7 +18,7 @@ export interface AuthResponse {
 export class AuthService {
   constructor(
     private readonly jwtService: JwtService,
-    private readonly httpService: HttpService,
+    private readonly usersService: UsersService,
   ) {}
 
   validateJwtToken(token: string): Promise<unknown> {
@@ -36,18 +29,29 @@ export class AuthService {
     }
   }
 
-  async validateSessionToken(sessionToken: string): Promise<UserSession> {
-    try {
-      const { data } = await firstValueFrom(
-        this.httpService.get<UserSession>(
-          `${serviceConfig.users.url}/sessions/validate/${sessionToken}`,
-          { timeout: serviceConfig.users.timeout },
-        ),
-      );
+  async login(email: string, password: string): Promise<LoginResponse> {
+    const user = await this.usersService.findByEmail(email);
 
-      return data;
-    } catch {
-      throw new UnauthorizedException('Invalid session token');
+    if (!user || !(await this.usersService.validatePassword(password, user.passwordHash))) {
+      throw new UnauthorizedException('Invalid email or password');
     }
+
+    const accessToken = this.jwtService.sign({
+      sub: user.id,
+      email: user.email,
+      role: user.role,
+    });
+
+    return {
+      user: {
+        id: user.id,
+        email: user.email,
+        firstName: user.firstName,
+        lastName: user.lastName,
+        role: user.role,
+        status: user.status,
+      },
+      accessToken,
+    };
   }
 }
