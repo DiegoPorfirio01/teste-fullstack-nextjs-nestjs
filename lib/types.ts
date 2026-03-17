@@ -28,3 +28,43 @@ export interface IAuthResponse {
   accessToken: string;
   user: IUser;
 }
+
+export interface IWallet {
+  id: string;
+  userId: string;
+  balance: number;
+}
+
+export type TransactionType = "deposit" | "transfer";
+
+export type TransactionStatus = "completed" | "reversed";
+
+export interface ITransaction {
+  id: string;
+  type: TransactionType;
+  amount: number;
+  senderId?: string;
+  receiverId?: string;
+  status: TransactionStatus;
+  createdAt: string;
+}
+
+export interface IRegisterDTO {
+  name: string;
+  email: string;
+  password: string;
+}
+
+export interface ILoginDTO {
+  email: string;
+  password: string;
+}
+
+export interface IDepositDTO {
+  amount: number;
+}
+
+export interface ITransferDTO {
+  receiverId: string;
+  amount: number;
+}
