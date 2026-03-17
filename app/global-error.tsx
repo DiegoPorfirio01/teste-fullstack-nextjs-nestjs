@@ -44,7 +44,7 @@ export default function GlobalError({
               marginBottom: "0.5rem",
             }}
           >
-            Something went wrong
+            Algo deu errado
           </h1>
           <p
             style={{
@@ -53,8 +53,7 @@ export default function GlobalError({
               marginBottom: "1.5rem",
             }}
           >
-            A critical error occurred. We&apos;ve been notified and are looking
-            into it.
+            Ocorreu um erro crítico. Fomos notificados e estamos analisando.
           </p>
           <div
             style={{
@@ -78,10 +77,10 @@ export default function GlobalError({
                 cursor: "pointer",
               }}
             >
-              Try again
+              Tentar novamente
             </button>
             <Link href="/dashboard" className="text-blue-500 hover:text-blue-600">
-              Go home
+              Ir para o início
             </Link>
           </div>
         </div>

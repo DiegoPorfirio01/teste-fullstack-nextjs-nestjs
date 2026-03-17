@@ -5,7 +5,6 @@ import Link from "next/link"
 
 import { NavDocuments } from "@/components/dashboard/nav-documents"
 import { NavMain } from "@/components/dashboard/nav-main"
-import { NavSecondary } from "@/components/dashboard/nav-secondary"
 import { NavUser } from "@/components/dashboard/nav-user"
 import {
   Sidebar,
@@ -21,9 +20,6 @@ import {
   ArrowDownToLineIcon,
   ArrowRightLeftIcon,
   HistoryIcon,
-  LogInIcon,
-  UserPlusIcon,
-  Settings2Icon,
   WalletIcon,
 } from "lucide-react"
 
@@ -35,7 +31,7 @@ const data = {
   },
   navMain: [
     {
-      title: "Dashboard",
+      title: "Painel",
       url: "/dashboard",
       icon: <LayoutDashboardIcon />,
     },
@@ -57,23 +53,6 @@ const data = {
       icon: <HistoryIcon />,
     },
   ],
-  navSecondary: [
-    {
-      title: "Login",
-      url: "/auth/login",
-      icon: <LogInIcon />,
-    },
-    {
-      title: "Cadastro",
-      url: "/auth/register",
-      icon: <UserPlusIcon />,
-    },
-    {
-      title: "Configurações",
-      url: "/dashboard",
-      icon: <Settings2Icon />,
-    },
-  ],
 }
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
@@ -84,7 +63,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
           <SidebarMenuItem>
             <SidebarMenuButton
               asChild
-              className="data-[slot=sidebar-menu-button]:p-1.5!"
+              className="data-[slot=sidebar-menu-button]:p-.5!"
             >
               <Link href="/dashboard" prefetch={false}>
                 <WalletIcon className="size-5!" />
@@ -97,7 +76,6 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       <SidebarContent>
         <NavMain items={data.navMain} />
         <NavDocuments items={data.navHistory} />
-        <NavSecondary items={data.navSecondary} className="mt-auto" />
       </SidebarContent>
       <SidebarFooter>
         <NavUser user={data.user} />

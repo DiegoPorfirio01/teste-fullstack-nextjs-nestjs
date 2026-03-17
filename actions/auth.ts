@@ -48,7 +48,7 @@ export async function loginAction(
 
     if (!res.ok) {
       const message =
-        data?.message ?? data?.error ?? "Invalid email or password";
+        data?.message ?? data?.error ?? "E-mail ou senha inválidos";
       return {
         error: Array.isArray(message) ? message[0] : message,
         values: {
@@ -129,7 +129,7 @@ export async function registerAction(
 
     if (!res.ok) {
       const message =
-        data?.message ?? data?.error ?? "Registration failed";
+        data?.message ?? data?.error ?? "Falha no cadastro";
       return {
         error: Array.isArray(message) ? message[0] : message,
         values: {

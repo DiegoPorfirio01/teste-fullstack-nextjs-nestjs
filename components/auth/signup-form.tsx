@@ -37,9 +37,9 @@ export function SignupForm({
           >
             <FieldGroup>
               <div className="flex flex-col items-center gap-2 text-center">
-                <h1 className="text-2xl font-bold">Create your account</h1>
+                <h1 className="text-2xl font-bold">Crie sua conta</h1>
                 <p className="text-sm text-balance text-muted-foreground">
-                  Enter your email below to create your account
+                  Digite seu e-mail abaixo para criar sua conta
                 </p>
               </div>
 
@@ -50,7 +50,7 @@ export function SignupForm({
               )}
 
               <Field data-invalid={!!state?.fieldErrors?.name}>
-                <FieldLabel htmlFor="name">Name</FieldLabel>
+                <FieldLabel htmlFor="name">Nome</FieldLabel>
                 <Input
                   id="name"
                   name="name"
@@ -63,7 +63,7 @@ export function SignupForm({
               </Field>
 
               <Field data-invalid={!!state?.fieldErrors?.email}>
-                <FieldLabel htmlFor="email">Email</FieldLabel>
+                <FieldLabel htmlFor="email">E-mail</FieldLabel>
                 <Input
                   id="email"
                   name="email"
@@ -78,7 +78,7 @@ export function SignupForm({
               <Field data-invalid={!!state?.fieldErrors?.password || !!state?.fieldErrors?.confirmPassword}>
                 <div className="grid grid-cols-2 gap-4">
                   <Field data-invalid={!!state?.fieldErrors?.password}>
-                    <FieldLabel htmlFor="password">Password</FieldLabel>
+                    <FieldLabel htmlFor="password">Senha</FieldLabel>
                     <Input
                       id="password"
                       name="password"
@@ -90,7 +90,7 @@ export function SignupForm({
                     <FieldError errors={state?.fieldErrors?.password?.map((m: string) => ({ message: m })) ?? []} />
                   </Field>
                   <Field data-invalid={!!state?.fieldErrors?.confirmPassword}>
-                    <FieldLabel htmlFor="confirmPassword">Confirm Password</FieldLabel>
+                    <FieldLabel htmlFor="confirmPassword">Confirmar senha</FieldLabel>
                     <Input
                       id="confirmPassword"
                       name="confirmPassword"
@@ -106,13 +106,13 @@ export function SignupForm({
 
               <Field>
                 <Button type="submit" disabled={isPending}>
-                  {isPending ? "Creating account…" : "Create Account"}
+                  {isPending ? "Criando conta…" : "Criar conta"}
                 </Button>
               </Field>
               <FieldDescription className="text-center">
-                Already have an account?{" "}
+                Já tem uma conta?{" "}
                 <Link href="/auth/login" className="underline underline-offset-4 hover:text-primary">
-                  Sign in
+                  Entrar
                 </Link>
               </FieldDescription>
             </FieldGroup>
@@ -129,8 +129,8 @@ export function SignupForm({
         </CardContent>
       </Card>
       <FieldDescription className="px-6 text-center">
-        By clicking continue, you agree to our <a href="#">Terms of Service</a>{" "}
-        and <a href="#">Privacy Policy</a>.
+        Ao continuar, você concorda com nossos <a href="#">Termos de Uso</a>{" "}
+        e <a href="#">Política de Privacidade</a>.
       </FieldDescription>
     </div>
   )

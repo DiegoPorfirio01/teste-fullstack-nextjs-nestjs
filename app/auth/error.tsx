@@ -22,15 +22,15 @@ export default function AuthError({
       <Card className="w-full max-w-md">
         <CardContent className="flex flex-col items-center gap-6 p-6 text-center">
           <div className="space-y-2">
-            <h2 className="text-xl font-semibold">Something went wrong</h2>
+            <h2 className="text-xl font-semibold">Algo deu errado</h2>
             <p className="text-sm text-muted-foreground">
-              We couldn&apos;t load the authentication page. Please try again.
+              Não foi possível carregar a página de autenticação. Tente novamente.
             </p>
           </div>
           <div className="flex flex-wrap items-center justify-center gap-3">
-            <Button onClick={reset}>Try again</Button>
+            <Button onClick={reset}>Tentar novamente</Button>
             <Button asChild variant="outline">
-              <Link href="/">Go home</Link>
+              <Link href="/">Ir para o início</Link>
             </Button>
           </div>
         </CardContent>

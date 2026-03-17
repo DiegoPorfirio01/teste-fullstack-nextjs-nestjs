@@ -38,9 +38,9 @@ export function LoginForm({
           >
             <FieldGroup>
               <div className="flex flex-col items-center gap-2 text-center">
-                <h1 className="text-2xl font-bold">Welcome back</h1>
+                <h1 className="text-2xl font-bold">Bem-vindo de volta</h1>
                 <p className="text-balance text-muted-foreground">
-                  Login to your Acme Inc account
+                  Entre na sua conta Acme Inc
                 </p>
               </div>
 
@@ -51,7 +51,7 @@ export function LoginForm({
               )}
 
               <Field data-invalid={!!state?.fieldErrors?.email}>
-                <FieldLabel htmlFor="email">Email</FieldLabel>
+                <FieldLabel htmlFor="email">E-mail</FieldLabel>
                 <Input
                   id="email"
                   name="email"
@@ -65,7 +65,7 @@ export function LoginForm({
               </Field>
 
               <Field data-invalid={!!state?.fieldErrors?.password}>
-                <FieldLabel htmlFor="password">Password</FieldLabel>
+                <FieldLabel htmlFor="password">Senha</FieldLabel>
                 <Input
                   id="password"
                   name="password"
@@ -79,15 +79,15 @@ export function LoginForm({
 
               <Field>
                 <Button type="submit" disabled={isPending}>
-                  {isPending ? "Signing in…" : "Login"}
+                  {isPending ? "Entrando…" : "Entrar"}
                 </Button>
               </Field>
 
               <FieldSeparator className="*:data-[slot=field-separator-content]:bg-card"></FieldSeparator>
               <FieldDescription className="text-center">
-                Don&apos;t have an account?{" "}
+                Não tem uma conta?{" "}
                 <Link href="/auth/register" className="underline underline-offset-4 hover:text-primary">
-                  Sign up
+                  Cadastre-se
                 </Link>
               </FieldDescription>
             </FieldGroup>
@@ -104,8 +104,8 @@ export function LoginForm({
         </CardContent>
       </Card>
       <FieldDescription className="px-6 text-center">
-        By clicking continue, you agree to our <a href="#">Terms of Service</a>{" "}
-        and <a href="#">Privacy Policy</a>.
+        Ao continuar, você concorda com nossos <a href="#">Termos de Uso</a>{" "}
+        e <a href="#">Política de Privacidade</a>.
       </FieldDescription>
     </div>
   )

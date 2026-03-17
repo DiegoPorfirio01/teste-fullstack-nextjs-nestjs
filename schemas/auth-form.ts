@@ -1,16 +1,16 @@
 import z from "zod";
 
 export const loginSchema = z.object({
-    email: z.email("Invalid email address").trim(),
-    password: z.string().min(1, "Password is required").trim(),
+    email: z.email("E-mail inválido").trim(),
+    password: z.string().min(1, "Senha é obrigatória").trim(),
 });
 
 export const registerSchema = z.object({
-    name: z.string().min(2, "Name must be at least 2 characters").trim(),
-    email: z.email("Invalid email address").trim(),
-    password: z.string().min(8, "Password must be at least 8 characters").trim(),
-    confirmPassword: z.string().min(1, "Please confirm your password").trim(),
+    name: z.string().min(2, "Nome deve ter pelo menos 2 caracteres").trim(),
+    email: z.email("E-mail inválido").trim(),
+    password: z.string().min(8, "Senha deve ter pelo menos 8 caracteres").trim(),
+    confirmPassword: z.string().min(1, "Confirme sua senha").trim(),
 }).refine((data) => data.password === data.confirmPassword, {
-    message: "Passwords do not match",
+    message: "As senhas não coincidem",
     path: ["confirmPassword"],
 });
