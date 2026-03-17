@@ -7,7 +7,7 @@ import { useLinkStatus } from "next/link"
  * Shows a subtle pending indicator when navigation is in progress (useLinkStatus pattern).
  * @see https://nextjs.org/docs/app/api-reference/functions/use-link-status
  */
-export function SidebarLinkHint() {
+export function LinkHint() {
   const { pending } = useLinkStatus()
   return (
     <span

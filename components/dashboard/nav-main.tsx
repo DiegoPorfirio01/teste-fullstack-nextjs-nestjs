@@ -9,7 +9,7 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/ui/sidebar"
-import { SidebarLinkHint } from "@/components/dashboard/sidebar-link-hint"
+import { LinkHint } from "@/components/dashboard/link-hint"
 
 export function NavMain({
   items,
@@ -36,7 +36,7 @@ export function NavMain({
                 <Link href={item.url} prefetch={false}>
                   {item.icon}
                   <span>{item.title}</span>
-                  <SidebarLinkHint />
+                  <LinkHint />
                 </Link>
               </SidebarMenuButton>
             </SidebarMenuItem>
