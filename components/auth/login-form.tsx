@@ -15,7 +15,7 @@ import {
 } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { loginAction } from "@/actions/auth";
-import type { LoginState } from "@/lib/types";
+import type { LoginState } from "@/types";
 import Image from "next/image";
 
 export function LoginForm({

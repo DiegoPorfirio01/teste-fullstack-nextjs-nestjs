@@ -2,10 +2,10 @@
 
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
-import { z } from "zod";
 import { routes } from "@/api-routes";
+import { serverFetch } from "@/lib/server-fetch";
 import { AUTH_COOKIE_NAME } from "@/constants";
-import type { IAuthResponse, LoginState, RegisterState } from "@/lib/types";
+import type { IAuthResponse, LoginState, RegisterState } from "@/types";
 import { loginSchema } from "@/schemas/auth-form";
 import { registerSchema } from "@/schemas/auth-form";
 
@@ -35,7 +35,7 @@ export async function loginAction(
   }
 
   try {
-    const res = await fetch(routes.auth.login, {
+    const res = await serverFetch(routes.auth.login, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
@@ -115,7 +115,7 @@ export async function registerAction(
   }
 
   try {
-    const res = await fetch(routes.auth.register, {
+    const res = await serverFetch(routes.auth.register, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({

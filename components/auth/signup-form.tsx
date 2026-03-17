@@ -14,7 +14,7 @@ import {
 } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { registerAction } from "@/actions/auth";
-import type { RegisterState } from "@/lib/types";
+import type { RegisterState } from "@/types";
 import Image from "next/image";
 
 export function SignupForm({

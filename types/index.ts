@@ -14,6 +14,16 @@ export type RegisterState = {
   values?: { name?: string; email?: string; password?: string; confirmPassword?: string };
 };
 
+export type UpdatePasswordState = {
+  error?: string;
+  fieldErrors?: Record<string, string[]>;
+  values?: {
+    currentPassword?: string;
+    newPassword?: string;
+    confirmNewPassword?: string;
+  };
+};
+
 export type LoginForm = z.infer<typeof loginSchema>;
 export type RegisterForm = z.infer<typeof registerSchema>;
 
@@ -68,3 +78,24 @@ export interface ITransferDTO {
   receiverId: string;
   amount: number;
 }
+
+export interface IInvestidor {
+  id: string;
+  name: string;
+  email?: string;
+  avatarUrl?: string;
+  followedAt?: string;
+}
+
+export interface IUserProfile {
+  id: string;
+  fullName: string;
+  email: string;
+  avatarUrl?: string;
+}
+
+export type UpdateProfileState = {
+  error?: string;
+  fieldErrors?: Record<string, string[]>;
+  values?: { fullName?: string };
+};
