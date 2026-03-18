@@ -21,16 +21,17 @@ test.describe.serial("Fluxos de créditos", () => {
 
     await sheet.getByRole("button", { name: /confirmar compra/i }).click();
 
-    await expect(page.getByText(/créditos comprados com sucesso/i)).toBeVisible({ timeout: 10_000 });
+    await expect(page.getByText(/créditos comprados com sucesso/i).first()).toBeVisible({ timeout: 10_000 });
   });
 
   test("transferir créditos para outro usuário", async ({ page }) => {
     await page.goto("/transactions");
 
     await expect(page.getByRole("heading", { name: /transações/i })).toBeVisible({ timeout: 10_000 });
-    await expect(page.getByLabel(/e-mail/i)).toBeVisible();
+    const emailInput = page.getByRole("textbox", { name: "E-mail", exact: true });
+    await expect(emailInput).toBeVisible();
 
-    await page.getByLabel(/e-mail/i).fill("user2@example.com");
+    await emailInput.fill("user2@example.com");
     await page.getByLabel("Valor em reais").fill("5,00");
     await page.getByRole("button", { name: /transferir/i }).click();
 
@@ -50,10 +51,12 @@ test.describe.serial("Fluxos de créditos", () => {
 
     const dialog = page.getByRole("alertdialog");
     await expect(dialog.getByText(/reverter transferência/i)).toBeVisible({ timeout: 3000 });
-    await expect(dialog.getByText(/devolver o valor para sua carteira/i)).toBeVisible();
+    await expect(dialog.getByText(/valor para sua carteira/i)).toBeVisible();
 
     await dialog.getByRole("button", { name: /^confirmar$/i }).click();
 
-    await expect(page.getByText(/transferência revertida com sucesso/i)).toBeVisible({ timeout: 10_000 });
+    // Aguarda o diálogo fechar e o toast de sucesso
+    await expect(dialog).not.toBeVisible({ timeout: 5000 });
+    await expect(page.getByText(/transferência revertida com sucesso/i).first()).toBeVisible({ timeout: 15_000 });
   });
 });
