@@ -1,17 +1,20 @@
 "use client"
 
+import { useEffect } from "react"
 import { useActionState } from "react"
+import { toast } from "sonner"
 import { Button } from "@/components/ui/button"
 import {
   Field,
+  FieldDescription,
   FieldError,
   FieldGroup,
   FieldLabel,
 } from "@/components/ui/field"
-import { Input } from "@/components/ui/input"
+import { NameInput } from "@/components/ui/name-input"
+import { EmailInput } from "@/components/ui/email-input"
 import { updateProfileAction } from "@/actions/profile"
 import type { UpdateProfileState } from "@/types"
-import { UserIcon } from "lucide-react"
 
 type Props = {
   fullName: string
@@ -24,9 +27,15 @@ export function FormProfileDetails({ fullName, email }: Props) {
     FormData
   >(updateProfileAction, undefined)
 
+  useEffect(() => {
+    if (state?.success) {
+      toast.success("Perfil atualizado com sucesso!")
+    }
+  }, [state?.success])
+
   return (
     <form
-      key={state?.values ? "has-values" : "initial"}
+      key={state?.values != null ? "has-values" : "initial"}
       action={formAction}
     >
       <FieldGroup className="gap-5">
@@ -38,18 +47,13 @@ export function FormProfileDetails({ fullName, email }: Props) {
 
         <Field data-invalid={!!state?.fieldErrors?.fullName}>
           <FieldLabel htmlFor="fullName">Nome completo</FieldLabel>
-          <div className="relative">
-            <UserIcon className="absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground" />
-            <Input
-              id="fullName"
-              name="fullName"
-              type="text"
-              required
-              className="pl-9"
-              aria-invalid={!!state?.fieldErrors?.fullName}
-              defaultValue={state?.values?.fullName ?? fullName}
-            />
-          </div>
+          <NameInput
+            id="fullName"
+            name="fullName"
+            required
+            aria-invalid={!!state?.fieldErrors?.fullName}
+            defaultValue={state?.values?.fullName ?? fullName}
+          />
           <FieldError
             errors={
               state?.fieldErrors?.fullName?.map((m) => ({ message: m })) ?? []
@@ -57,25 +61,29 @@ export function FormProfileDetails({ fullName, email }: Props) {
           />
         </Field>
 
-        <Field>
-          <FieldLabel htmlFor="email">Email</FieldLabel>
-          <Input
+        <Field data-disabled>
+          <FieldLabel htmlFor="email">E-mail</FieldLabel>
+          <EmailInput
             id="email"
             type="email"
             defaultValue={email}
             readOnly
             disabled
             className="cursor-not-allowed bg-muted"
-            aria-describedby="email-readonly"
+            aria-describedby="email-description"
           />
-          <span id="email-readonly" className="text-xs text-muted-foreground">
-            O email não pode ser alterado
-          </span>
+          <FieldDescription id="email-description">
+            O e-mail não pode ser alterado
+          </FieldDescription>
         </Field>
 
-        <Button type="submit" disabled={isPending}>
-          {isPending ? "Salvando…" : "Salvar alterações"}
-        </Button>
+        <Field>
+          <div className="flex justify-end">
+            <Button type="submit" disabled={isPending}>
+              {isPending ? "Salvando…" : "Salvar alterações"}
+            </Button>
+          </div>
+        </Field>
       </FieldGroup>
     </form>
   )

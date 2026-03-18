@@ -1,6 +1,8 @@
 "use client"
 
+import { useEffect } from "react"
 import { useActionState } from "react"
+import { toast } from "sonner"
 import { Button } from "@/components/ui/button"
 import {
   Card,
@@ -14,18 +16,24 @@ import {
   FieldError,
   FieldGroup,
   FieldLabel,
+  FieldSeparator,
 } from "@/components/ui/field"
-import { Input } from "@/components/ui/input"
-import { Separator } from "@/components/ui/separator"
+import { PasswordInput } from "@/components/ui/password-input"
 import { updatePasswordAction } from "@/actions/profile"
 import type { UpdatePasswordState } from "@/types"
-import { KeyRoundIcon, LockIcon } from "lucide-react"
+import { LockIcon } from "lucide-react"
 
 export function FormPerfil() {
   const [state, formAction, isPending] = useActionState<
     UpdatePasswordState | undefined,
     FormData
   >(updatePasswordAction, undefined)
+
+  useEffect(() => {
+    if (state?.success) {
+      toast.success("Senha atualizada com sucesso!")
+    }
+  }, [state?.success])
 
   return (
     <Card className="overflow-hidden">
@@ -56,18 +64,15 @@ export function FormPerfil() {
 
             <Field data-invalid={!!state?.fieldErrors?.currentPassword}>
               <FieldLabel htmlFor="currentPassword">Senha atual</FieldLabel>
-              <div className="relative">
-                <KeyRoundIcon className="absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground" />
-                <Input
-                  id="currentPassword"
-                  name="currentPassword"
-                  type="password"
-                  required
-                  className="pl-9"
-                  aria-invalid={!!state?.fieldErrors?.currentPassword}
-                  defaultValue={state?.values?.currentPassword}
-                />
-              </div>
+              <PasswordInput
+                id="currentPassword"
+                name="currentPassword"
+                icon="key"
+                required
+                autoComplete="current-password"
+                aria-invalid={!!state?.fieldErrors?.currentPassword}
+                defaultValue={state?.values?.currentPassword}
+              />
               <FieldError
                 errors={
                   state?.fieldErrors?.currentPassword?.map((m) => ({
@@ -77,22 +82,18 @@ export function FormPerfil() {
               />
             </Field>
 
-            <Separator className="my-1" />
+            <FieldSeparator />
 
             <Field data-invalid={!!state?.fieldErrors?.newPassword}>
               <FieldLabel htmlFor="newPassword">Nova senha</FieldLabel>
-              <div className="relative">
-                <LockIcon className="absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground" />
-                <Input
-                  id="newPassword"
-                  name="newPassword"
-                  type="password"
-                  required
-                  className="pl-9"
-                  aria-invalid={!!state?.fieldErrors?.newPassword}
-                  defaultValue={state?.values?.newPassword}
-                />
-              </div>
+              <PasswordInput
+                id="newPassword"
+                name="newPassword"
+                autoComplete="new-password"
+                required
+                aria-invalid={!!state?.fieldErrors?.newPassword}
+                defaultValue={state?.values?.newPassword}
+              />
               <FieldError
                 errors={
                   state?.fieldErrors?.newPassword?.map((m) => ({
@@ -106,18 +107,14 @@ export function FormPerfil() {
               <FieldLabel htmlFor="confirmNewPassword">
                 Confirmar nova senha
               </FieldLabel>
-              <div className="relative">
-                <LockIcon className="absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground" />
-                <Input
-                  id="confirmNewPassword"
-                  name="confirmNewPassword"
-                  type="password"
-                  required
-                  className="pl-9"
-                  aria-invalid={!!state?.fieldErrors?.confirmNewPassword}
-                  defaultValue={state?.values?.confirmNewPassword}
-                />
-              </div>
+              <PasswordInput
+                id="confirmNewPassword"
+                name="confirmNewPassword"
+                autoComplete="new-password"
+                required
+                aria-invalid={!!state?.fieldErrors?.confirmNewPassword}
+                defaultValue={state?.values?.confirmNewPassword}
+              />
               <FieldError
                 errors={
                   state?.fieldErrors?.confirmNewPassword?.map((m) => ({
@@ -127,9 +124,13 @@ export function FormPerfil() {
               />
             </Field>
 
-            <Button type="submit" disabled={isPending}>
-              {isPending ? "Salvando…" : "Atualizar senha"}
-            </Button>
+            <Field>
+              <div className="flex justify-end">
+                <Button type="submit" disabled={isPending}>
+                  {isPending ? "Salvando…" : "Atualizar senha"}
+                </Button>
+              </div>
+            </Field>
           </FieldGroup>
         </form>
       </CardContent>

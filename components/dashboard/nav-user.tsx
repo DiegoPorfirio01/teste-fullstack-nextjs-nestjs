@@ -1,6 +1,8 @@
 "use client"
 
 import Link from "next/link"
+import { useFormStatus } from "react-dom"
+import { logoutAction } from "@/actions/auth"
 import {
   Avatar,
   AvatarFallback,
@@ -26,8 +28,27 @@ import {
   EllipsisVerticalIcon,
   CircleUserRoundIcon,
   LogOutIcon,
-  CreditCardIcon,
+  Loader2Icon,
 } from "lucide-react"
+
+function LogoutButton() {
+  const { pending } = useFormStatus()
+
+  return (
+    <button
+      type="submit"
+      disabled={pending}
+      className="flex w-full cursor-pointer items-center gap-2 bg-transparent outline-none disabled:cursor-not-allowed disabled:opacity-70"
+    >
+      {pending ? (
+        <Loader2Icon className="size-4 animate-spin" />
+      ) : (
+        <LogOutIcon />
+      )}
+      {pending ? "Saindo..." : "Sair"}
+    </button>
+  )
+}
 
 export function NavUser({
   user,
@@ -91,19 +112,12 @@ export function NavUser({
                   <LinkHint />
                 </Link>
               </DropdownMenuItem>
-              <DropdownMenuItem asChild className="cursor-pointer">
-                <Link href="/billing" prefetch={false}>
-                  <CreditCardIcon />
-                  Billing
-                  <LinkHint />
-                </Link>
-              </DropdownMenuItem>
             </DropdownMenuGroup>
             <DropdownMenuSeparator />
-            <DropdownMenuItem className="cursor-pointer">
-              <LogOutIcon
-              />
-              Sair
+            <DropdownMenuItem asChild>
+              <form action={logoutAction}>
+                <LogoutButton />
+              </form>
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>

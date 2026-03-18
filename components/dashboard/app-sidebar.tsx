@@ -17,18 +17,12 @@ import {
 } from "@/components/ui/sidebar"
 import {
   LayoutDashboardIcon,
-  ArrowDownToLineIcon,
-  ArrowRightLeftIcon,
   HistoryIcon,
   WalletIcon,
+  CreditCardIcon,
 } from "lucide-react"
 
 const data = {
-  user: {
-    name: "Usuário",
-    email: "usuario@exemplo.com",
-    avatar: "/avatars/shadcn.jpg",
-  },
   navMain: [
     {
       title: "Painel",
@@ -36,26 +30,31 @@ const data = {
       icon: <LayoutDashboardIcon />,
     },
     {
-      title: "Depositar",
-      url: "/dashboard/depositar",
-      icon: <ArrowDownToLineIcon />,
-    },
-    {
-      title: "Transferir",
-      url: "/dashboard/transferir",
-      icon: <ArrowRightLeftIcon />,
-    },
-  ],
-  navHistory: [
-    {
-      name: "Transações",
-      url: "/dashboard",
+      title: "Transações",
+      url: "/transactions",
       icon: <HistoryIcon />,
     },
+    {
+      title: "Comprar Crédito",
+      url: "/billing",
+      icon: <CreditCardIcon />,
+    },
   ],
+  navHistory: [],
 }
 
-export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
+export function AppSidebar({
+  user,
+  ...props
+}: React.ComponentProps<typeof Sidebar> & {
+  user?: { name: string; email: string; avatar: string }
+}) {
+  const displayUser = user ?? {
+    name: "Usuário",
+    email: "usuario@exemplo.com",
+    avatar: "/avatars/shadcn.jpg",
+  }
+
   return (
     <Sidebar collapsible="offcanvas" {...props}>
       <SidebarHeader>
@@ -75,10 +74,12 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       </SidebarHeader>
       <SidebarContent>
         <NavMain items={data.navMain} />
-        <NavDocuments items={data.navHistory} />
+        {data.navHistory.length > 0 && (
+          <NavDocuments items={data.navHistory} />
+        )}
       </SidebarContent>
       <SidebarFooter>
-        <NavUser user={data.user} />
+        <NavUser user={displayUser} />
       </SidebarFooter>
     </Sidebar>
   )
