@@ -32,7 +32,6 @@ teste-adv/
 │   └── (dashboard)/              # Route group — layout com sidebar
 │       ├── layout.tsx
 │       ├── dashboard/page.tsx
-│       ├── depositar/page.tsx
 │       ├── perfil/page.tsx
 │       ├── transactions/page.tsx
 │       └── billing/page.tsx

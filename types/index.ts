@@ -55,12 +55,6 @@ export type UpdateProfileState = {
 
 export type DeleteAccountState = { error?: string };
 
-export type DepositState = {
-  error?: string;
-  success?: boolean;
-  fieldErrors?: { amount?: string[] };
-};
-
 export type TransferState = {
   error?: string;
   success?: boolean;

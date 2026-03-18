@@ -16,7 +16,7 @@ Análise do código `teste-adv` contra as skills next-best-practices, next-cache
    ])
    ```
 
-2. **Server Actions para mutações** — `depositAction`, `transferAction`, `reverseAction`, `buyCreditsAction` usam `'use server'` corretamente.
+2. **Server Actions para mutações** — `transferAction`, `reverseAction`, `buyCreditsAction` usam `'use server'` corretamente.
 
 3. **useActionState para formulários** — Formulários usam `useActionState` com `formAction`, alinhado às recomendações do React 19.
 

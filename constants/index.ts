@@ -5,7 +5,6 @@ export const AUTH_COOKIE_NAME = "auth-token";
 /** Route path -> label for breadcrumbs and nav. Shared with sidebar. */
 export const ROUTE_LABELS: Record<string, string> = {
   "/dashboard": "Painel",
-  "/dashboard/depositar": "Depositar",
   "/transacoes": "Transações",
   "/billing": "Comprar Crédito",
   "/perfil": "Conta",

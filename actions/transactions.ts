@@ -18,7 +18,6 @@ import {
   TransactionType,
 } from "@/enums";
 import type {
-  DepositState,
   ITransaction,
   ActionResult,
   ReverseState,
@@ -119,51 +118,6 @@ function mapRawToTransaction(raw: RawTransaction, userId: string): ITransaction 
 }
 
 // ---- Actions (mutations) ----
-
-export async function depositAction(
-  _prevState: DepositState | undefined,
-  formData: FormData
-): Promise<DepositState> {
-  const amountStr = formData.get("amount") as string;
-  const amount = parseFloat(amountStr ?? "0");
-
-  if (!amount || amount <= 0) {
-    return { fieldErrors: { amount: ["Informe um valor válido"] } };
-  }
-  if (amount > MAX_AMOUNT) {
-    return {
-      fieldErrors: {
-        amount: [`Valor máximo permitido é R$ ${MAX_AMOUNT.toLocaleString("pt-BR")}`],
-      },
-    };
-  }
-
-  logActionStart("depositAction", { amount });
-
-  try {
-    const res = await serverFetch(routes.transactions.deposit, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ amount }),
-    });
-
-    const data = (await res.json()) as Record<string, unknown>;
-    if (!res.ok) {
-      const msg = getApiErrorMessage(data, "Falha ao depositar");
-      logActionError("depositAction", new Error(msg), { amount, status: res.status, responseData: data });
-      return { error: msg };
-    }
-
-    revalidatePath("/transactions");
-    revalidatePath("/dashboard");
-    logActionSuccess("depositAction", { amount });
-    return { success: true };
-  } catch (err) {
-    logActionError("depositAction", err, { amount });
-    rethrowNavigationError(err);
-    return { error: toUserFriendlyMessage(err, "Erro inesperado ao depositar") };
-  }
-}
 
 export async function transferAction(
   _prevState: TransferState | undefined,

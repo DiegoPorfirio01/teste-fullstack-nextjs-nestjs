@@ -20,7 +20,6 @@ export const routes = {
   },
 
   transactions: {
-    deposit: `${base}/transactions/deposit`,
     transfer: `${base}/transactions/transfer`,
     list: `${base}/transactions`,
     byPeriod: (days: number) =>
