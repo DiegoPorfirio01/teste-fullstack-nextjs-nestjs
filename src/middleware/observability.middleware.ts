@@ -1,25 +1,54 @@
 import { Injectable, Logger, NestMiddleware } from '@nestjs/common';
+import { InjectMetric } from '@willsoto/nestjs-prometheus';
+import { Counter, Histogram } from 'prom-client';
+import type { IncomingMessage, ServerResponse } from 'http';
 
 @Injectable()
 export class ObservabilityMiddleware implements NestMiddleware {
   private readonly logger = new Logger('HTTP');
 
-  use(req: { method: string; url: string; ip: string; headers?: Record<string, string>; on?: (ev: string, fn: () => void) => void }, res: { on: (ev: string, fn: (e?: unknown) => void) => void; statusCode?: number; get?: (name: string) => string | undefined }, next: () => void) {
-    const { method, url: originalUrl, ip } = req;
-    const userAgent = req.headers?.['user-agent'] ?? '';
+  constructor(
+    @InjectMetric('http_requests_total')
+    private readonly httpRequestsCounter: Counter<string>,
+    @InjectMetric('http_request_duration_seconds')
+    private readonly httpRequestDuration: Histogram<string>,
+  ) {}
+
+  use(req: IncomingMessage, res: ServerResponse, next: (err?: Error) => void) {
+    const method = req.method ?? 'UNKNOWN';
+    const originalUrl = req.url ?? '';
+    const forwarded = req.headers['x-forwarded-for'];
+    const ip =
+      (Array.isArray(forwarded) ? forwarded[0] : forwarded)?.split(',')[0] ??
+      req.socket.remoteAddress ??
+      '';
+    const userAgent = req.headers['user-agent'] ?? '';
+    const requestId =
+      String(req.headers['x-request-id'] ?? '') || crypto.randomUUID();
+
     const startTime = Date.now();
+    const route = originalUrl.split('?')[0] || '/';
+
+    res.setHeader('X-Request-ID', requestId);
 
     this.logger.log(
       `Incoming Request: ${method} ${originalUrl} - IP: ${ip} - User-Agent :${userAgent}`,
     );
 
     res.on('finish', () => {
-      const { statusCode } = res;
-      const contentLength = res.get?.('Content-Length');
+      const statusCode = res.statusCode;
+      const contentLength = res.getHeader('Content-Length');
       const duration = Date.now() - startTime;
 
+      this.httpRequestsCounter.inc({
+        method,
+        route,
+        status: String(statusCode ?? 0),
+      });
+      this.httpRequestDuration.observe({ method, route }, duration / 1000);
+
       this.logger.log(
-        `Outgoing Response: ${method} ${originalUrl} - ${statusCode} - ${contentLength || 0}b - ${duration}ms`,
+        `Outgoing Response: ${method} ${originalUrl} - ${statusCode} - ${String(contentLength || 0)}b - ${duration}ms`,
       );
 
       if ((statusCode ?? 0) >= 400) {
@@ -29,15 +58,13 @@ export class ObservabilityMiddleware implements NestMiddleware {
       }
     });
 
-    // Log de erros
     res.on('error', (error) => {
       this.logger.error(
         `Response Error: ${method} ${originalUrl} - ${error instanceof Error ? error.message : String(error)}`,
       );
     });
 
-    // Log de timeout
-    req.on?.('timeout', () => {
+    req.on('timeout', () => {
       this.logger.warn(
         `Request Timeout: ${method} ${originalUrl} - ${Date.now() - startTime}ms`,
       );

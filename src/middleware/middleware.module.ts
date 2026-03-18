@@ -4,6 +4,7 @@ import {
   makeCounterProvider,
   makeHistogramProvider,
 } from '@willsoto/nestjs-prometheus';
+import { MetricsController } from './metrics.controller';
 import { ObservabilityMiddleware } from './observability.middleware';
 
 const httpRequestsCounter = makeCounterProvider({
@@ -22,7 +23,8 @@ const httpRequestDuration = makeHistogramProvider({
 @Module({
   imports: [
     PrometheusModule.register({
-      path: '/metrics',
+      path: '/v1/metrics',
+      controller: MetricsController,
       defaultMetrics: {
         enabled: true,
       },

@@ -11,23 +11,24 @@ import { Public } from './guards/decorators';
 import type { CurrentUserType } from './guards';
 
 @ApiTags('app')
-@Controller()
+@Controller({ version: '1' })
 export class AppController {
   constructor(private readonly appService: AppService) {}
 
   @Get()
   @Public()
-  @ApiOperation({ summary: 'Health / Hello' })
-  @ApiResponse({ status: 200, description: 'Returns a greeting' })
+  @ApiOperation({ summary: 'Saúde / Olá' })
+  @ApiResponse({ status: 200, description: 'Retorna uma saudação' })
   getHello(): string {
     return this.appService.getHello();
   }
 
   @Get('me')
   @ApiBearerAuth()
-  @ApiOperation({ summary: 'Get current user' })
-  @ApiResponse({ status: 200, description: 'Returns the authenticated user' })
-  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  @ApiTags('auth')
+  @ApiOperation({ summary: 'Obter usuário atual' })
+  @ApiResponse({ status: 200, description: 'Retorna o usuário autenticado' })
+  @ApiResponse({ status: 401, description: 'Não autorizado' })
   getMe(@CurrentUser() user: CurrentUserType) {
     return { user };
   }
