@@ -1,0 +1,24 @@
+---
+description: Obrigatório consultar skills Next.js, shadcn e documentação oficial antes de implementar
+alwaysApply: true
+---
+
+# Skills e documentação obrigatórias (teste-adv)
+
+Ao escrever, revisar ou refatorar código Next.js e UI nesta aplicação, **consulte sempre**:
+
+1. **`.agents/skills/next-best-practices/`** – Next.js
+   - Leia `SKILL.md` para visão geral
+   - Arquivos como `file-conventions.md`, `rsc-boundaries.md`, `async-patterns.md`, `data-patterns.md`, etc.
+   - Aplica-se a: App Router, RSC, Server Actions, metadata, imagens, tratamento de erros
+
+2. **`.agents/skills/shadcn/`** – Componentes UI
+   - Leia `SKILL.md` para regras críticas (styling, forms, composition, ícones)
+   - Use `pnpm dlx shadcn@latest docs <component>` antes de usar componentes
+   - Aplica-se a: formulários, layout, componentes shadcn, Tailwind, acessibilidade
+
+3. **Documentação Next.js oficial** – [nextjs.org/docs](https://nextjs.org/docs)
+   - Consulte a docs para APIs, guias (AI agents, MCP, testing) e mudanças de versão
+   - Fonte de verdade para App Router, Server Components, etc.
+
+Não assuma padrões a partir de dados de treinamento. As skills e a documentação oficial são a fonte de verdade.
