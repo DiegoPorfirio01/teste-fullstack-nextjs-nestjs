@@ -3,7 +3,11 @@
 import { useEffect } from "react"
 import { useActionState } from "react"
 import { toast } from "sonner"
-import { TransactionDirection, TransactionType } from "@/enums"
+import {
+  TransactionDirection,
+  TransactionStatus,
+  TransactionType,
+} from "@/enums"
 import { reverseAction } from "@/actions/transactions"
 import { Button } from "@/components/ui/button"
 import {
@@ -27,7 +31,20 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog"
 import { Undo2Icon } from "lucide-react"
+import { cn } from "@/lib/utils"
 import type { ITransaction } from "@/types"
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip"
+
+const REVERT_WINDOW_MS = 10 * 60 * 1000 // 10 minutos
+
+function isWithinRevertWindow(createdAt: string): boolean {
+  const created = new Date(createdAt).getTime()
+  return Date.now() - created <= REVERT_WINDOW_MS
+}
 
 interface TransactionsTableProps {
   transactions: ITransaction[]
@@ -43,7 +60,13 @@ function TypeBadge({ type }: { type: ITransaction["type"] }) {
   )
 }
 
-function RevertButton({ transactionId }: { transactionId: string }) {
+function RevertButton({
+  transactionId,
+  disabled,
+}: {
+  transactionId: string
+  disabled?: boolean
+}) {
   const [state, formAction, isPending] = useActionState(reverseAction, undefined)
 
   useEffect(() => {
@@ -52,14 +75,27 @@ function RevertButton({ transactionId }: { transactionId: string }) {
     }
   }, [state?.success])
 
+  const trigger = (
+    <Button variant="outline" size="sm" disabled={disabled}>
+      <Undo2Icon data-icon="inline-start" />
+      Reverter
+    </Button>
+  )
+
+  if (disabled) {
+    return (
+      <Tooltip>
+        <TooltipTrigger asChild>{trigger}</TooltipTrigger>
+        <TooltipContent>
+          Só é possível reverter dentro de 10 minutos após a transferência.
+        </TooltipContent>
+      </Tooltip>
+    )
+  }
+
   return (
     <AlertDialog>
-      <AlertDialogTrigger asChild>
-        <Button variant="outline" size="sm">
-          <Undo2Icon data-icon="inline-start" />
-          Reverter
-        </Button>
-      </AlertDialogTrigger>
+      <AlertDialogTrigger asChild>{trigger}</AlertDialogTrigger>
       <AlertDialogContent>
         <form action={formAction}>
           <input type="hidden" name="transactionId" value={transactionId} />
@@ -115,7 +151,19 @@ export function TransactionsTable({
             <TableCell>
               <TypeBadge type={tx.type} />
             </TableCell>
-            <TableCell className="tabular-nums">
+            <TableCell
+              className={cn(
+                "tabular-nums font-medium",
+                tx.status === TransactionStatus.REVERSED &&
+                  "text-yellow-600 dark:text-yellow-500",
+                tx.status !== TransactionStatus.REVERSED &&
+                  tx.direction === TransactionDirection.RECEIVED &&
+                  "text-blue-600 dark:text-blue-400",
+                tx.status !== TransactionStatus.REVERSED &&
+                  tx.direction === TransactionDirection.SENT &&
+                  "text-red-600 dark:text-red-400"
+              )}
+            >
               {tx.direction === TransactionDirection.RECEIVED ? "+" : "-"}
               {formatAmount(tx.amount)}
             </TableCell>
@@ -127,8 +175,13 @@ export function TransactionsTable({
                 (tx.type === TransactionType.DEPOSIT ? "Depósito" : "—")}
             </TableCell>
             <TableCell className="text-right">
-              {tx.canReverse ? (
-                <RevertButton transactionId={tx.id} />
+              {tx.direction === TransactionDirection.SENT &&
+              tx.type === TransactionType.TRANSFER &&
+              tx.status === TransactionStatus.COMPLETED ? (
+                <RevertButton
+                  transactionId={tx.id}
+                  disabled={!isWithinRevertWindow(tx.createdAt)}
+                />
               ) : (
                 <span className="text-muted-foreground text-sm">—</span>
               )}
