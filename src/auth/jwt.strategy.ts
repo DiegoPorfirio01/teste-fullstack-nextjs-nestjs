@@ -25,7 +25,7 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     private readonly authService: AuthService,
     private readonly configService: ConfigService,
   ) {
-    const jwtSecret = configService.get<string>('JWT_SECRET', 'secret');
+    const jwtSecret = configService.get<string>('JWT_SECRET')!;
 
     super({
       jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
@@ -36,7 +36,7 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
 
   async validate(payload: JwtPayload): Promise<JwtUser> {
     if (!payload) {
-      throw new UnauthorizedException('Invalid token payload');
+      throw new UnauthorizedException('Payload do token inválido');
     }
 
     if (payload.token) {
