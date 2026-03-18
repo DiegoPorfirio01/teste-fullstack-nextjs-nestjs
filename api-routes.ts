@@ -1,26 +1,31 @@
 import { env } from "@/lib/env";
 
+const base = `${env.NEXT_PUBLIC_API_URL}/v1`;
+
 export const routes = {
   auth: {
-    register: `${env.NEXT_PUBLIC_API_URL}/auth/register`,
-    login: `${env.NEXT_PUBLIC_API_URL}/auth/login`,
-    updatePassword: `${env.NEXT_PUBLIC_API_URL}/auth/password`,
-    deleteAccount: `${env.NEXT_PUBLIC_API_URL}/auth/me`,
-    profile: `${env.NEXT_PUBLIC_API_URL}/auth/profile`,
+    register: `${base}/auth/register`,
+    login: `${base}/auth/login`,
+    updatePassword: `${base}/auth/password`,
+    deleteAccount: `${base}/auth/me`,
+    profile: `${base}/auth/profile`,
   },
   credits: {
-    buy: `${env.NEXT_PUBLIC_API_URL}/credits/buy`,
+    buy: `${base}/credits/buy`,
+    list: `${base}/credits`,
   },
 
   wallet: {
-    get: `${env.NEXT_PUBLIC_API_URL}/wallet`,
+    get: `${base}/wallet`,
   },
 
   transactions: {
-    deposit: `${env.NEXT_PUBLIC_API_URL}/transactions/deposit`,
-    transfer: `${env.NEXT_PUBLIC_API_URL}/transactions/transfer`,
-    list: `${env.NEXT_PUBLIC_API_URL}/transactions`,
+    deposit: `${base}/transactions/deposit`,
+    transfer: `${base}/transactions/transfer`,
+    list: `${base}/transactions`,
+    byPeriod: (days: number) =>
+      `${base}/transactions/by-period?days=${days}`,
     reverse: (id: string) =>
-      `${env.NEXT_PUBLIC_API_URL}/transactions/${id}/reverse`,
+      `${base}/transactions/${id}/reverse`,
   },
 };

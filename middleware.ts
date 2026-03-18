@@ -10,12 +10,27 @@ function isAuthRoute(pathname: string): boolean {
   );
 }
 
-function hasValidToken(request: NextRequest): boolean {
-  const token = request.cookies.get(AUTH_COOKIE_NAME)?.value;
-  return !!token;
+function isTokenExpired(token: string): boolean {
+  try {
+    const parts = token.split(".");
+    if (parts.length !== 3) return true;
+    const payload = JSON.parse(
+      atob(parts[1].replace(/-/g, "+").replace(/_/g, "/"))
+    ) as { exp?: number };
+    if (payload.exp == null) return false;
+    return Date.now() / 1000 >= payload.exp;
+  } catch {
+    return true;
+  }
 }
 
-export function proxy(request: NextRequest) {
+function hasValidToken(request: NextRequest): boolean {
+  const token = request.cookies.get(AUTH_COOKIE_NAME)?.value;
+  if (!token) return false;
+  return !isTokenExpired(token);
+}
+
+export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
   const hasToken = hasValidToken(request);
@@ -35,7 +50,7 @@ export function proxy(request: NextRequest) {
   }
 
   // User has no token and is trying to access protected routes -> redirect to login
-  const protectedPaths = ["/dashboard", "/perfil", "/billing"];
+  const protectedPaths = ["/dashboard", "/perfil", "/billing", "/transactions"];
   if (
     !hasToken &&
     protectedPaths.some(
@@ -56,6 +71,8 @@ export const config = {
     "/perfil/:path*",
     "/billing",
     "/billing/:path*",
+    "/transactions",
+    "/transactions/:path*",
     "/auth/login",
     "/auth/register",
     "/auth/signup",
