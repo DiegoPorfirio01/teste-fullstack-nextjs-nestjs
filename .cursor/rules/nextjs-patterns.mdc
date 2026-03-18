@@ -1,0 +1,82 @@
+---
+description: Padrões Next.js 16 — RSC, App Router, data fetching, metadata, middleware, async APIs
+globs: "app/**/*.{ts,tsx}"
+alwaysApply: false
+---
+
+# Next.js 16 — Padrões do Projeto
+
+## Server Components (padrão)
+
+- Componentes em `app/` são Server Components por padrão — sem `"use client"`
+- Buscar dados com `async function` + `serverFetch` + `Promise.all` para evitar waterfalls
+- Usar `Suspense` com fallback para conteúdo dinâmico que demora
+
+```tsx
+export default async function Page() {
+  const [a, b] = await Promise.all([getData(), getOther()])
+  return (
+    <>
+      <StaticHeader />
+      <DataSection data={a} />
+      <Suspense fallback={<Skeleton />}>
+        <DynamicSection />
+      </Suspense>
+    </>
+  )
+}
+```
+
+## Client Components
+
+Usar `"use client"` somente quando necessário: `useState`, `useEffect`, event handlers, browser APIs.
+Manter Client Components pequenos — extrair lógica server para Server Components pai.
+
+## Formulários
+
+Padrão: `useActionState` (React 19) + Server Action + schema Zod.
+Nunca usar `onSubmit` com `fetch` — usar `action={formAction}` nativo.
+
+```tsx
+"use client"
+const [state, formAction, isPending] = useActionState(myAction, undefined)
+return <form action={formAction}>...</form>
+```
+
+## Async APIs (Next.js 15+)
+
+`cookies()`, `headers()`, `params`, `searchParams` são **async** — sempre usar `await`.
+
+```tsx
+const cookieStore = await cookies()
+const { id } = await params
+const { q } = await searchParams
+```
+
+## Metadata
+
+Exportar `metadata` ou `generateMetadata` em `page.tsx` — nunca em `layout.tsx`.
+
+```tsx
+export const metadata: Metadata = {
+  title: "Título da Página",
+  description: "Descrição",
+}
+```
+
+## Middleware
+
+- `middleware.ts` na raiz controla auth (JWT cookie check)
+- Rotas auth: `/auth/login`, `/auth/register` — redireciona para dashboard se autenticado
+- Rotas protegidas: `/dashboard`, `/perfil`, `/billing`, `/transactions` — redireciona para login se não autenticado
+
+## Route Groups
+
+- `(dashboard)` — agrupa layout de sidebar sem afetar URL
+- `auth/` — rotas de autenticação
+
+## Error Handling
+
+- `error.tsx` para error boundaries por rota
+- `global-error.tsx` na raiz para erros globais
+- `ActionError` componente para exibir erros de `ActionResult`

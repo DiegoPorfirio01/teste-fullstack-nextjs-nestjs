@@ -1,0 +1,60 @@
+---
+description: Integração com API NestJS — serverFetch, rotas, autenticação, env
+globs: "{lib/server-fetch.ts,api-routes.ts,actions/*.ts,lib/env.ts}"
+alwaysApply: false
+---
+
+# Integração com API
+
+O frontend consome uma API NestJS em `NEXT_PUBLIC_API_URL`. Toda comunicação server-side passa por `serverFetch`.
+
+## serverFetch (`lib/server-fetch.ts`)
+
+- Lê o cookie `auth-token` e envia como `Authorization: Bearer`
+- Em 401 redireciona automaticamente para `/auth/login`
+- **Nunca** leia o cookie de auth manualmente em actions/componentes
+- **Nunca** construa `Authorization: Bearer` fora de `serverFetch`
+- **Nunca** use `fetch` direto — sempre `serverFetch`
+
+```ts
+import { serverFetch } from "@/lib/server-fetch";
+import { routes } from "@/api-routes";
+
+const res = await serverFetch(routes.auth.profile);
+const res = await serverFetch(routes.transactions.list, {
+  method: "POST",
+  headers: { "Content-Type": "application/json" },
+  body: JSON.stringify(data),
+});
+```
+
+## Rotas da API (`api-routes.ts`)
+
+Todas as URLs ficam centralizadas em `routes`. Para adicionar uma nova rota:
+
+```ts
+export const routes = {
+  meuRecurso: {
+    list: `${base}/meu-recurso`,
+    create: `${base}/meu-recurso`,
+    byId: (id: string) => `${base}/meu-recurso/${id}`,
+  },
+};
+```
+
+Rotas com parâmetros dinâmicos usam funções: `routes.transactions.reverse(id)`.
+
+## Validação de env (`lib/env.ts`)
+
+Variáveis de ambiente validadas com Zod no startup. Adicionar novas variáveis:
+1. Adicionar no schema `envSchema` em `lib/env.ts`
+2. Adicionar em `.env.example`
+3. Adicionar em `.env.local`
+
+## Fluxo de autenticação
+
+1. Login/Register → `serverFetch` POST → API retorna `{ accessToken, user }`
+2. Token salvo em cookie httpOnly (`AUTH_COOKIE_NAME`)
+3. `middleware.ts` valida JWT exp em cada request
+4. `serverFetch` envia Bearer em chamadas autenticadas
+5. 401 → redirect para `/auth/login`
