@@ -1,0 +1,43 @@
+---
+description: Visão geral do projeto — stack, estrutura de pastas, convenções gerais
+alwaysApply: true
+---
+
+# Projeto teste-adv
+
+Next.js 16 (App Router) + React 19 + TypeScript (strict) + Tailwind v4 + shadcn/ui (radix-nova).
+Frontend que consome API NestJS via `serverFetch`. Sem banco ou ORM direto.
+
+## Stack
+
+- **Package manager:** pnpm
+- **UI:** shadcn/ui (radix-nova) + lucide-react
+- **Validação:** Zod v4
+- **Testes:** Vitest + React Testing Library (unit) | Playwright (e2e)
+- **Observabilidade:** Sentry (`@sentry/nextjs`)
+- **Temas:** next-themes (light/dark)
+
+## Estrutura de pastas
+
+| Pasta/Arquivo | Conteúdo |
+|---|---|
+| `app/` | Rotas App Router (layouts, pages, error boundaries) |
+| `actions/` | Server Actions (`"use server"`) |
+| `components/ui/` | Componentes shadcn |
+| `components/auth/` | Formulários de autenticação |
+| `components/dashboard/` | Componentes do painel |
+| `schemas/` | Schemas Zod para validação |
+| `types/index.ts` | Tipos e interfaces centralizados |
+| `lib/` | Utilitários (`serverFetch`, `cn`, `env`, `action-utils`, `action-logger`) |
+| `api-routes.ts` | URLs da API NestJS |
+| `constants/index.ts` | Constantes (cookie name, labels, etc.) |
+| `enums/` | Enums TypeScript |
+| `hooks/` | Custom hooks |
+| `middleware.ts` | Auth middleware (JWT cookie check) |
+
+## Convenções gerais
+
+- Import alias: `@/*` → raiz do projeto
+- Idioma do app: português (pt-BR) — labels, mensagens de erro, validações
+- Consulte `.agents/skills/next-best-practices/` e `.agents/skills/shadcn/` antes de implementar
+- CLI shadcn: `pnpm dlx shadcn@latest add <component>`

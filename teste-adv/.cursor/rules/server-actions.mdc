@@ -1,0 +1,75 @@
+---
+description: Padrões para Server Actions — validação, logging, tratamento de erros, fluxo com useActionState
+globs: actions/*.ts
+alwaysApply: false
+---
+
+# Server Actions
+
+Toda lógica de mutação e leitura server-side fica em `actions/*.ts` com `"use server"` no topo.
+
+## Padrão de uma Action de mutação
+
+1. Receber `(prevState, formData)` — assinatura do `useActionState`
+2. Validar com schema Zod de `schemas/` via `safeParse`
+3. Retornar `fieldErrors` se validação falhar (sem chamar API)
+4. `logActionStart` antes da chamada
+5. Chamar API via `serverFetch(routes.*)` — nunca `fetch` direto
+6. Validar resposta da API com schema Zod (`authResponseSchema`, etc.)
+7. `logActionSuccess` no sucesso, `logActionError` no erro
+8. No `catch`: chamar `rethrowNavigationError(err)` primeiro (redirect/notFound não devem ser capturados)
+9. Retornar estado com `error` e `values` para preservar campos do formulário
+
+```ts
+"use server";
+
+import { serverFetch } from "@/lib/server-fetch";
+import { routes } from "@/api-routes";
+import { rethrowNavigationError, toUserFriendlyMessage } from "@/lib/action-utils";
+import { logActionStart, logActionSuccess, logActionError } from "@/lib/action-logger";
+import { mySchema } from "@/schemas/my-form";
+import type { MyState } from "@/types";
+
+export async function myAction(
+  _prevState: MyState | undefined,
+  formData: FormData
+): Promise<MyState> {
+  const parsed = mySchema.safeParse({ /* formData.get(...) */ });
+  if (!parsed.success) return { fieldErrors: zodFieldErrors(parsed.error) };
+
+  logActionStart("myAction", { /* context */ });
+  try {
+    const res = await serverFetch(routes.resource.create, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(parsed.data),
+    });
+    const data = await res.json();
+    if (!res.ok) return { error: getApiErrorMessage(data, "Fallback") };
+    logActionSuccess("myAction");
+    // redirect ou retornar { success: true }
+  } catch (err) {
+    logActionError("myAction", err);
+    rethrowNavigationError(err);
+    return { error: toUserFriendlyMessage(err, "Fallback") };
+  }
+}
+```
+
+## Actions de leitura
+
+Retornam `ActionResult<T>` (discriminated union: `{ data }` ou `{ error }`).
+
+```ts
+export async function getData(): Promise<ActionResult<MyData[]>> {
+  try {
+    const res = await serverFetch(routes.resource.list);
+    if (!res.ok) return { error: getApiErrorMessage(await res.json(), "Erro") };
+    return { data: await res.json() };
+  } catch { return { error: "Erro ao carregar dados" }; }
+}
+```
+
+## Tipos de estado
+
+Definir em `types/index.ts` — nunca inline. Incluir `error?`, `success?`, `fieldErrors?`, `values?`.

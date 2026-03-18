@@ -1,0 +1,61 @@
+---
+description: Padrões shadcn/ui — componentes, formulários, estilização, ícones
+globs: "**/*.tsx"
+alwaysApply: false
+---
+
+# shadcn/ui — Padrões
+
+Consulte `.agents/skills/shadcn/SKILL.md` para referência completa.
+
+## Formulários
+
+Sempre usar `FieldGroup` + `Field` — nunca `div` com `space-y-*` para layout de form.
+
+```tsx
+<FieldGroup>
+  <Field data-invalid={!!errors?.email}>
+    <FieldLabel htmlFor="email">E-mail</FieldLabel>
+    <EmailInput id="email" name="email" aria-invalid={!!errors?.email} />
+    <FieldError errors={errors?.email?.map(m => ({ message: m })) ?? []} />
+  </Field>
+</FieldGroup>
+```
+
+- `data-invalid` no `Field`, `aria-invalid` no controle
+- `FieldSeparator` para dividir seções
+- `FieldDescription` para texto auxiliar
+
+## Estilização
+
+- `gap-*` em vez de `space-y-*` ou `space-x-*`
+- `size-*` quando largura = altura (`size-10`, não `w-10 h-10`)
+- `truncate` em vez de `overflow-hidden text-ellipsis whitespace-nowrap`
+- Cores semânticas: `bg-primary`, `text-muted-foreground` — nunca `bg-blue-500`
+- Sem `dark:` manual — usar tokens semânticos
+- `cn()` para classes condicionais — nunca template literals manuais
+
+## Ícones
+
+- Usar `data-icon="inline-start"` ou `data-icon="inline-end"` em ícones dentro de `Button`
+- Sem classes de tamanho em ícones dentro de componentes — o componente controla
+- Importar de `lucide-react`
+
+## Componentes
+
+- Verificar se componente já existe antes de criar custom (`pnpm dlx shadcn@latest search`)
+- `Card`: usar composição completa (`CardHeader`/`CardTitle`/`CardContent`/`CardFooter`)
+- `Dialog`/`Sheet`/`Drawer`: sempre incluir `Title` (usar `sr-only` se invisível)
+- `Avatar`: sempre com `AvatarFallback`
+- `Toast`: usar `sonner` (`toast()`)
+- `Badge` em vez de spans customizados
+- `Skeleton` para loading — não `animate-pulse` manual
+- `Separator` em vez de `<hr>` ou `border-t` em divs
+
+## CLI
+
+```bash
+pnpm dlx shadcn@latest add <component>
+pnpm dlx shadcn@latest search <query>
+pnpm dlx shadcn@latest docs <component>
+```
