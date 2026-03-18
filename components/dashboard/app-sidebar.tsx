@@ -3,7 +3,6 @@
 import * as React from "react"
 import Link from "next/link"
 
-import { NavDocuments } from "@/components/dashboard/nav-documents"
 import { NavMain } from "@/components/dashboard/nav-main"
 import { NavUser } from "@/components/dashboard/nav-user"
 import {
@@ -15,6 +14,7 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/ui/sidebar"
+import { ROUTE_LABELS, SIDEBAR_NAV_PATHS } from "@/constants"
 import {
   LayoutDashboardIcon,
   HistoryIcon,
@@ -22,25 +22,20 @@ import {
   CreditCardIcon,
 } from "lucide-react"
 
+const NAV_ICONS: Record<(typeof SIDEBAR_NAV_PATHS)[number], React.ReactNode> = {
+  "/dashboard": <LayoutDashboardIcon />,
+  "/transactions": <HistoryIcon />,
+  "/billing": <CreditCardIcon />,
+}
+
+const navMain = SIDEBAR_NAV_PATHS.map((url) => ({
+  title: ROUTE_LABELS[url] ?? url,
+  url,
+  icon: NAV_ICONS[url],
+}))
+
 const data = {
-  navMain: [
-    {
-      title: "Painel",
-      url: "/dashboard",
-      icon: <LayoutDashboardIcon />,
-    },
-    {
-      title: "Transações",
-      url: "/transactions",
-      icon: <HistoryIcon />,
-    },
-    {
-      title: "Comprar Crédito",
-      url: "/billing",
-      icon: <CreditCardIcon />,
-    },
-  ],
-  navHistory: [],
+  navMain,
 }
 
 export function AppSidebar({
@@ -74,9 +69,6 @@ export function AppSidebar({
       </SidebarHeader>
       <SidebarContent>
         <NavMain items={data.navMain} />
-        {data.navHistory.length > 0 && (
-          <NavDocuments items={data.navHistory} />
-        )}
       </SidebarContent>
       <SidebarFooter>
         <NavUser user={displayUser} />
