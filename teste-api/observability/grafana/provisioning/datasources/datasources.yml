@@ -1,0 +1,63 @@
+# Grafana datasource provisioning - Configuração via Docker
+# Documentação: https://grafana.com/docs/grafana/latest/administration/provisioning/#data-sources
+# Todas as configs da UI podem ser definidas aqui (best practice: Infrastructure as Code)
+
+apiVersion: 1
+
+# Remove datasources criados manualmente (evita duplicatas como "prometheus-1")
+deleteDatasources:
+  - name: prometheus-1
+    orgId: 1
+  - name: Prometheus 1
+    orgId: 1
+
+# Remove datasources que não estão mais nos arquivos de provisioning
+prune: true
+
+datasources:
+  - name: Prometheus
+    uid: prometheus
+    type: prometheus
+    access: proxy
+    url: http://prometheus:9090
+    isDefault: true
+    editable: false
+    orgId: 1
+    # Timeout HTTP para requests ao Prometheus (segundos)
+    timeout: 60
+    jsonData:
+      # Intervalo de scrape - deve coincidir com prometheus.yml (scrape_interval)
+      timeInterval: "15s"
+      # POST é mais eficiente para queries longas
+      httpMethod: POST
+      # Query timeout - tempo máximo de avaliação no Prometheus (segundos)
+      queryTimeout: 60
+      # Prometheus type: Prometheus | Cortex | Mimir | Thanos
+      prometheusType: Prometheus
+      # Alerting: visualizar regras/alerts do Prometheus
+      manageAlerts: true
+      allowAsRecordingRulesTarget: true
+      # Query editor: Builder (visual) ou Code (PromQL)
+      defaultEditor: Builder
+      # Performance: desabilitar lookup de métricas em instâncias grandes
+      disableMetricsLookup: false
+      # Cache level: Low | Medium | High
+      cacheLevel: Low
+      # Incremental querying (beta) - reduz carga em queries relativas
+      incrementalQuerying: false
+      # Desabilitar recording rules (beta)
+      disableRecordingRules: false
+
+  - name: Tempo
+    uid: tempo
+    type: tempo
+    access: proxy
+    url: http://tempo:3200
+    isDefault: false
+    editable: false
+    orgId: 1
+    jsonData:
+      httpMethod: GET
+      # Link exemplares Prometheus -> traces Tempo
+      tracesToMetrics:
+        datasourceUid: prometheus

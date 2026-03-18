@@ -1,0 +1,35 @@
+---
+description: Convenções de testes Jest
+globs: **/*.spec.ts
+alwaysApply: false
+---
+
+# Testes
+
+- Specs colados ao arquivo: `auth.service.spec.ts` ao lado de `auth.service.ts`
+- `@nestjs/testing`: `Test.createTestingModule()` para criar mocks
+- Mockar dependências injetadas (repositories, services externos)
+- Usar `describe`, `it`, `expect`; evitar `xit`/`fit` em código commitado
+
+```typescript
+describe('AuthService', () => {
+  let service: AuthService;
+  let userRepository: jest.Mocked<UserRepository>;
+
+  beforeEach(async () => {
+    const module = await Test.createTestingModule({
+      providers: [
+        AuthService,
+        { provide: UserRepository, useValue: { findByEmail: jest.fn() } },
+      ],
+    }).compile();
+    service = module.get(AuthService);
+    userRepository = module.get(UserRepository);
+  });
+
+  it('should register a new user', async () => {
+    userRepository.findByEmail.mockResolvedValue(null);
+    // ...
+  });
+});
+```

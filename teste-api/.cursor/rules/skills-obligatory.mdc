@@ -1,0 +1,19 @@
+---
+description: Obrigatório consultar skills NestJS e documentação oficial antes de implementar
+alwaysApply: true
+---
+
+# Skills e documentação obrigatórias (teste-api)
+
+Ao escrever, revisar ou refatorar código NestJS nesta API, **consulte sempre**:
+
+1. **Skills do projeto** – `.agents/skills/nestjs-best-practices/`
+   - Leia `SKILL.md` para visão geral e categorias
+   - Para detalhes: `AGENTS.md` (guia completo) ou arquivos em `rules/`
+   - Aplica-se a: módulos, controllers, services, auth, segurança, performance, testes, banco de dados
+
+2. **Documentação NestJS oficial** – [docs.nestjs.com](https://docs.nestjs.com)
+   - Consulte a docs antes de implementar features que dependam de APIs específicas do NestJS
+   - Referência para CQRS, circular dependency, testing, etc.
+
+Não assuma padrões a partir de dados de treinamento. As skills e a documentação oficial são a fonte de verdade.

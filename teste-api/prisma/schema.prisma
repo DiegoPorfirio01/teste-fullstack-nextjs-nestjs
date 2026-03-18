@@ -1,0 +1,73 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model User {
+  id           String   @id @default(uuid())
+  email        String   @unique
+  passwordHash String  @map("password_hash")
+  name         String
+  role         String   @default("user")
+  status       String   @default("active")
+  createdAt    DateTime @default(now()) @map("created_at")
+
+  wallet           Wallet?
+  transactionsSent Transaction[]     @relation("TransactionsSent")
+  transactionsRecv Transaction[]     @relation("TransactionsReceived")
+  creditPurchases  CreditPurchase[]
+
+  @@map("users")
+}
+
+model Wallet {
+  id        String   @id @default(uuid())
+  userId    String   @unique @map("user_id")
+  balance   Decimal  @default(0) @db.Decimal(14, 2)
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("wallets")
+}
+
+model Transaction {
+  id         String            @id @default(uuid())
+  type       String            // 'deposit' | 'transfer'
+  amount     Decimal           @db.Decimal(14, 2)
+  senderId   String?           @map("sender_id")
+  receiverId String?           @map("receiver_id")
+  status     String            @default("completed") // 'completed' | 'reversed'
+  createdAt  DateTime          @default(now()) @map("created_at")
+
+  sender   User?  @relation("TransactionsSent", fields: [senderId], references: [id], onDelete: SetNull)
+  receiver User?  @relation("TransactionsReceived", fields: [receiverId], references: [id], onDelete: SetNull)
+
+  // findByUser, findByUserInDateRange: ORDER BY createdAt
+  @@index([senderId, createdAt])
+  @@index([receiverId, createdAt])
+  // sumReceivedTransfersLast10Min: WHERE receiverId, type, status, createdAt
+  @@index([receiverId, type, status, createdAt])
+  @@map("transactions")
+}
+
+model CreditPurchase {
+  id        String   @id @default(uuid())
+  userId    String   @map("user_id")
+  packageId String   @map("package_id")
+  credits   Int
+  amount    Decimal  @db.Decimal(10, 2)
+  createdAt DateTime @default(now()) @map("created_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  // findByUser: WHERE userId ORDER BY createdAt DESC
+  @@index([userId, createdAt])
+  @@map("credit_purchases")
+}
