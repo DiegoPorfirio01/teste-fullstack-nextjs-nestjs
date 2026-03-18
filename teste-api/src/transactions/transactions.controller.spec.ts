@@ -1,5 +1,6 @@
 import { CACHE_MANAGER } from '@nestjs/cache-manager';
-import { Test, TestingModule } from '@nestjs/testing';
+import type { TestingModule } from '@nestjs/testing';
+import { Test } from '@nestjs/testing';
 import { TransactionStatus, TransactionType } from '../enums';
 import { TransactionsController } from './transactions.controller';
 import { TransactionsService } from './transactions.service';

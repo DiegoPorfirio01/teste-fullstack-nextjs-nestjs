@@ -1,5 +1,6 @@
 import { ConflictException, NotFoundException } from '@nestjs/common';
-import { Test, TestingModule } from '@nestjs/testing';
+import type { TestingModule } from '@nestjs/testing';
+import { Test } from '@nestjs/testing';
 import * as bcrypt from 'bcrypt';
 import { UserRepository } from './user.repository';
 import { UsersService } from './users.service';

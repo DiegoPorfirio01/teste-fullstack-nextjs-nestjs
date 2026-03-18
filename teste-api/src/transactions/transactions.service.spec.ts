@@ -1,7 +1,7 @@
 import { BadRequestException, NotFoundException } from '@nestjs/common';
 import { CACHE_MANAGER } from '@nestjs/cache-manager';
-import { Test, TestingModule } from '@nestjs/testing';
-import type { Cache } from 'cache-manager';
+import type { TestingModule } from '@nestjs/testing';
+import { Test } from '@nestjs/testing';
 import { TransactionStatus, TransactionType } from '../enums';
 import { PrismaService } from '../prisma/prisma.service';
 import { UsersService } from '../users/users.service';

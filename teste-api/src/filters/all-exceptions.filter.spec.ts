@@ -1,6 +1,8 @@
-import { ArgumentsHost, HttpException, HttpStatus } from '@nestjs/common';
-import { Test, TestingModule } from '@nestjs/testing';
-import { FastifyReply, FastifyRequest } from 'fastify';
+import type { ArgumentsHost } from '@nestjs/common';
+import { HttpException, HttpStatus } from '@nestjs/common';
+import type { TestingModule } from '@nestjs/testing';
+import { Test } from '@nestjs/testing';
+import type { FastifyReply, FastifyRequest } from 'fastify';
 import { AllExceptionsFilter } from './all-exceptions.filter';
 
 describe('AllExceptionsFilter', () => {

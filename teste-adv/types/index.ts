@@ -1,5 +1,5 @@
-import { loginSchema, registerSchema } from '@/schemas/auth-form';
-import z from 'zod';
+import type { loginSchema, registerSchema } from '@/schemas/auth-form';
+import type z from 'zod';
 
 import type {
   TransactionDirection,

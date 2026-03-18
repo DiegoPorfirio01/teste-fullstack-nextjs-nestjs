@@ -30,6 +30,7 @@ function logStructured(
     case 'success':
     case 'info':
     default:
+      // eslint-disable-next-line no-console -- logger utility
       console.log(line);
       break;
   }

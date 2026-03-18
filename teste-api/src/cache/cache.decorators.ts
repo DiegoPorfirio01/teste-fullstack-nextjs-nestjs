@@ -1,4 +1,4 @@
-import { ExecutionContext } from '@nestjs/common';
+import type { ExecutionContext } from '@nestjs/common';
 import { CacheKey, CacheTTL } from '@nestjs/cache-manager';
 import { CACHE_KEYS, CACHE_TTL, isValidPeriod } from './cache.constants';
 

@@ -1,5 +1,6 @@
 import { NotFoundException } from '@nestjs/common';
-import { Test, TestingModule } from '@nestjs/testing';
+import type { TestingModule } from '@nestjs/testing';
+import { Test } from '@nestjs/testing';
 import { WalletService } from '../wallet/wallet.service';
 import { CreditPurchaseRepository } from './credit-purchase.repository';
 import { CreditsService } from './credits.service';
