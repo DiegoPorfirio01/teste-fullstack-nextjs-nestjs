@@ -1,17 +1,38 @@
-import { ChartAreaInteractive } from "@/components/dashboard/chart-area-interactive"
-import { DataTable } from "@/components/dashboard/data-table"
-import { SectionCards } from "@/components/dashboard/section-cards"
+import type { Metadata } from "next"
+import { getWalletCredits } from "@/actions/wallet"
+import { getTransactions } from "@/actions/transactions"
+import { ActionError } from "@/components/dashboard/action-error"
+import { ChartTransactions } from "@/components/dashboard/chart-transactions"
+import { DashboardCards } from "@/components/dashboard/dashboard-cards"
+import { TransactionsHistorySection } from "@/components/dashboard/transactions-history-section"
 
-import data from "./data.json"
+export const metadata: Metadata = {
+  title: "Painel",
+  description: "Visão geral da sua carteira, transações e créditos",
+}
 
-export default function Page() {
+export default async function DashboardPage() {
+  const [creditsResult, transactionsResult] = await Promise.all([
+    getWalletCredits(),
+    getTransactions(),
+  ])
+
+  const credits: number =
+    "data" in creditsResult ? (creditsResult.data ?? 0) : 0
+  const transactions =
+    "data" in transactionsResult ? transactionsResult.data ?? [] : []
+
   return (
     <div className="flex flex-col gap-4 py-4 md:gap-6 md:py-6">
-      <SectionCards />
+      <ActionError result={creditsResult} className="px-4 lg:px-6" />
+      <ActionError result={transactionsResult} className="px-4 lg:px-6" />
+      <DashboardCards balance={credits} transactions={transactions} />
       <div className="px-4 lg:px-6">
-        <ChartAreaInteractive />
+        <ChartTransactions />
       </div>
-      <DataTable data={data} />
+      <div className="px-4 lg:px-6">
+        <TransactionsHistorySection transactions={transactions} />
+      </div>
     </div>
   )
 }

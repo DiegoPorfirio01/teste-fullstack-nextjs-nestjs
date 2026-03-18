@@ -1,6 +1,8 @@
-import { AppSidebar } from "@/components/dashboard/app-sidebar"
+import { SidebarWithProfile } from "@/components/dashboard/sidebar-with-profile"
+import { SidebarSkeleton } from "@/components/dashboard/sidebar-skeleton"
 import { SiteHeader } from "@/components/dashboard/site-header"
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar"
+import { Suspense } from "react"
 
 export default function DashboardLayout({
   children,
@@ -16,7 +18,9 @@ export default function DashboardLayout({
         } as React.CSSProperties
       }
     >
-      <AppSidebar variant="inset" />
+      <Suspense fallback={<SidebarSkeleton />}>
+        <SidebarWithProfile />
+      </Suspense>
       <SidebarInset>
         <SiteHeader />
         <div className="flex flex-1 flex-col">

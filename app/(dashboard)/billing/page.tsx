@@ -1,3 +1,9 @@
+import type { Metadata } from "next"
+import { getCreditPurchases } from "@/actions/credits"
+import { getWalletCredits } from "@/actions/wallet"
+import { formatCurrency, formatDate } from "@/lib/formatters"
+import { ActionError } from "@/components/dashboard/action-error"
+import { PageContainer, PageHeader, PageSection } from "@/components/dashboard/page-layout"
 import { BuyCreditsSheet } from "@/components/dashboard/buy-credits-sheet"
 import { Button } from "@/components/ui/button"
 import {
@@ -7,27 +13,41 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card"
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table"
 import { Badge } from "@/components/ui/badge"
-import { CreditCardIcon } from "lucide-react"
+import { CreditCardIcon, HistoryIcon } from "lucide-react"
 import { CREDIT_PACKAGES } from "@/constants"
 
-export default function BillingPage() {
-  return (
-    <div className="flex flex-col gap-8 px-4 py-6 md:gap-10 md:px-6">
-      {/* Page header */}
-      <header className="page-content">
-        <div className="flex flex-col gap-1">
-          <h1 className="text-2xl font-semibold tracking-tight md:text-3xl">
-            Billing
-          </h1>
-          <p className="text-muted-foreground">
-            Gerencie seus créditos e adicione mais quando precisar
-          </p>
-        </div>
-      </header>
+export const metadata: Metadata = {
+  title: "Comprar Crédito",
+  description: "Gerencie seus créditos e adicione mais quando precisar",
+}
 
-      {/* Pricing packages */}
-      <section className="page-content">
+export default async function BillingPage() {
+  const [creditsResult, purchasesResult] = await Promise.all([
+    getWalletCredits(),
+    getCreditPurchases(),
+  ])
+  const credits = "data" in creditsResult ? creditsResult.data : 0
+  const purchases = "data" in purchasesResult ? purchasesResult.data ?? [] : []
+
+  return (
+    <PageContainer>
+      <ActionError result={creditsResult} />
+      <ActionError result={purchasesResult} />
+      <PageHeader
+        title="Comprar Crédito"
+        description="Gerencie seus créditos e adicione mais quando precisar"
+      />
+
+      <PageSection>
         <div>
           <h2 className="text-lg font-semibold">Pacotes de créditos</h2>
           <p className="mt-1 text-sm text-muted-foreground">
@@ -78,7 +98,10 @@ export default function BillingPage() {
                   </div>
                 </CardHeader>
                 <CardContent>
-                  <BuyCreditsSheet defaultPackageId={pkg.id}>
+                  <BuyCreditsSheet
+                    defaultPackageId={pkg.id}
+                    creditsRemaining={credits}
+                  >
                     <Button
                       className="w-full"
                       size="sm"
@@ -93,20 +116,78 @@ export default function BillingPage() {
             )
           })}
         </div>
-      </section>
+      </PageSection>
 
-      {/* How it works */}
-      <section className="page-content">
-        <Card className="border-dashed">
+      <PageSection>
+        <div>
+          <h2 className="text-lg font-semibold">Histórico de compras</h2>
+          <p className="mt-1 text-sm text-muted-foreground">
+            Todas as compras de créditos realizadas na sua conta
+          </p>
+        </div>
+        <Card>
           <CardHeader>
-            <CardTitle className="text-base">Como funcionam os créditos</CardTitle>
+            <CardTitle className="flex items-center gap-2 text-base">
+              <HistoryIcon className="size-4" />
+              Compras de créditos
+            </CardTitle>
             <CardDescription>
-              Os créditos são consumidos conforme você utiliza as funcionalidades
-              da plataforma. Adicione mais sempre que precisar.
+              Lista de todas as compras realizadas
             </CardDescription>
           </CardHeader>
+          <CardContent>
+            {purchases.length === 0 ? (
+              <p className="py-8 text-center text-sm text-muted-foreground">
+                Nenhuma compra de créditos encontrada
+              </p>
+            ) : (
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Pacote</TableHead>
+                    <TableHead>Créditos</TableHead>
+                    <TableHead>Data</TableHead>
+                    <TableHead className="text-right">Valor</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {purchases.map((purchase) => {
+                    const pkg = CREDIT_PACKAGES.find(
+                      (p) => p.id === purchase.packageId
+                    )
+                    return (
+                      <TableRow key={purchase.id}>
+                        <TableCell>
+                          {pkg ? (
+                            <span className="font-medium">
+                              {pkg.credits} créditos
+                            </span>
+                          ) : (
+                            <Badge variant="secondary">{purchase.packageId}</Badge>
+                          )}
+                        </TableCell>
+                        <TableCell className="tabular-nums">
+                          +{purchase.credits}
+                        </TableCell>
+                        <TableCell className="text-muted-foreground">
+                          {formatDate(purchase.createdAt)}
+                        </TableCell>
+                        <TableCell className="text-right tabular-nums">
+                          {purchase.amount != null
+                            ? formatCurrency(purchase.amount, {
+                                maximumFractionDigits: 2,
+                              })
+                            : pkg?.price ?? "—"}
+                        </TableCell>
+                      </TableRow>
+                    )
+                  })}
+                </TableBody>
+              </Table>
+            )}
+          </CardContent>
         </Card>
-      </section>
-    </div>
+      </PageSection>
+    </PageContainer>
   )
 }
