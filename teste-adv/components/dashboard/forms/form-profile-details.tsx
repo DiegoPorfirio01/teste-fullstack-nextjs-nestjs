@@ -2,7 +2,8 @@
 
 import { useEffect } from "react"
 import { useActionState } from "react"
-import { toast } from "sonner"
+import { showSuccessToast } from "@/lib/toast"
+import { TOAST_MESSAGES } from "@/constants/toast-messages"
 import { Button } from "@/components/ui/button"
 import {
   Field,
@@ -29,7 +30,7 @@ export function FormProfileDetails({ fullName, email }: Props) {
 
   useEffect(() => {
     if (state?.success) {
-      toast.success("Perfil atualizado com sucesso!")
+      showSuccessToast(TOAST_MESSAGES.PROFILE_UPDATED)
     }
   }, [state?.success])
 

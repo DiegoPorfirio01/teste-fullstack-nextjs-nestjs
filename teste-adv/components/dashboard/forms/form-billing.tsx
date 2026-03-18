@@ -2,7 +2,8 @@
 
 import { useEffect, useRef } from "react"
 import { useActionState } from "react"
-import { toast } from "sonner"
+import { showSuccessToast } from "@/lib/toast"
+import { TOAST_MESSAGES } from "@/constants/toast-messages"
 import { Button } from "@/components/ui/button"
 import {
   Field,
@@ -32,7 +33,7 @@ export function FormBilling({
   onSuccessRef.current = onSuccess
   useEffect(() => {
     if (state?.success) {
-      toast.success("Créditos comprados com sucesso!")
+      showSuccessToast(TOAST_MESSAGES.CREDITS_PURCHASED)
       onSuccessRef.current?.()
     }
   }, [state?.success])
