@@ -3,6 +3,11 @@ import { withSentryConfig } from "@sentry/nextjs";
 
 const nextConfig: NextConfig = {
   /* config options here */
+  async redirects() {
+    return [
+      { source: "/auth/signup", destination: "/auth/register", permanent: true },
+    ];
+  },
 };
 
 export default withSentryConfig(nextConfig, {

@@ -2,10 +2,12 @@ import { z } from "zod";
 
 const envSchema = z.object({
   NEXT_PUBLIC_API_URL: z.url("NEXT_PUBLIC_API_URL must be a valid URL"),
-  NEXT_PUBLIC_SENTRY_DSN: z.url("NEXT_PUBLIC_SENTRY_DSN must be a valid URL"),
-  SENTRY_ORG: z.string().min(1, "SENTRY_ORG is required"),
-  SENTRY_PROJECT: z.string().min(1, "SENTRY_PROJECT is required"),
-  SENTRY_AUTH_TOKEN: z.string().min(1, "SENTRY_AUTH_TOKEN is required"),
+  NEXT_PUBLIC_SENTRY_DSN: z
+    .string()
+    .optional().nullable(),
+  SENTRY_ORG: z.string().optional().nullable(),
+  SENTRY_PROJECT: z.string().optional().nullable(),
+  SENTRY_AUTH_TOKEN: z.string().optional().nullable(),
 });
 
 export type Env = z.infer<typeof envSchema>;

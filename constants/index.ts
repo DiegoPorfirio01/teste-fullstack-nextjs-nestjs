@@ -6,8 +6,8 @@ export const AUTH_COOKIE_NAME = "auth-token";
 export const ROUTE_LABELS: Record<string, string> = {
   "/dashboard": "Painel",
   "/dashboard/depositar": "Depositar",
-  "/dashboard/transferir": "Transferir",
-  "/billing": "Billing",
+  "/transacoes": "Transações",
+  "/billing": "Comprar Crédito",
   "/perfil": "Conta",
 };
 
@@ -29,7 +29,6 @@ export const CREDIT_PACKAGES = [
       icon: ZapIcon,
       popular: true,
       description: "Melhor custo-benefício",
-      discount: "10% off",
     },
     {
       id: "100",
