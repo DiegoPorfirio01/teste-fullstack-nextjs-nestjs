@@ -1,0 +1,40 @@
+---
+description: Padrões NestJS para controllers, services e DTOs
+globs: src/**/*.ts
+alwaysApply: false
+---
+
+# Padrões NestJS
+
+## Controllers
+
+- `@Controller({ path: 'xxx', version: '1' })` em todas as rotas
+- `@ApiTags()`, `@ApiOperation()`, `@ApiResponse()` em endpoints públicos
+- Rotas públicas: `@Public()`; rotas protegidas: sem decorator (JWT global)
+- Usar `@CurrentUser()` para usuário autenticado
+
+```typescript
+@ApiTags('auth')
+@Controller({ path: 'auth', version: '1' })
+export class AuthController {
+  @Public()
+  @Post('register')
+  async register(@Body() dto: RegisterDto) { ... }
+
+  @Get('profile')
+  @ApiBearerAuth()
+  async profile(@CurrentUser() user: CurrentUserType) { ... }
+}
+```
+
+## Services e Repositories
+
+- Service injeta Repository, não Prisma diretamente
+- Exceções HTTP via `BadRequestException`, `NotFoundException`, `ConflictException`
+- Cache: invalidar chaves em `CACHE_KEYS` após mutações (deposit, transfer, reverse)
+
+## DTOs
+
+- Usar `class-validator` (`@IsString()`, `@IsEmail()`, `@IsNumber()`, etc.)
+- `@IsOptional()` para campos opcionais
+- `@ValidateNested()` + `@Type()` para objetos aninhados

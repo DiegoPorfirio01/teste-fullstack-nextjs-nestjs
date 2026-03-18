@@ -1,0 +1,20 @@
+---
+description: Convenções Prisma e schema do banco
+globs: prisma/**/*
+alwaysApply: false
+---
+
+# Prisma
+
+## Schema
+
+- `@@map("snake_case")` em models para tabelas
+- `@map("snake_case")` em campos com snake_case no banco
+- `Decimal(14, 2)` para valores monetários (balance, amount)
+- `onDelete: Cascade` para Wallet e CreditPurchase; `SetNull` em Transaction (preserva histórico)
+- Índices compostos para queries frequentes: `@@index([senderId, createdAt])`, etc.
+
+## Migrações
+
+- Rodar `pnpm prisma:migrate` após alterar `schema.prisma`
+- Seed em `prisma/seed.ts` (executado com `pnpm prisma:seed`)

@@ -1,0 +1,28 @@
+---
+description: Visão geral e convenções do teste-api
+alwaysApply: true
+---
+
+# teste-api - Cursor Rules
+
+API financeira NestJS com Fastify, Prisma, Redis, JWT e Prometheus.
+
+## Arquitetura
+
+- **Feature modules** por domínio: `auth/`, `users/`, `wallet/`, `transactions/`, `credits/`, `guards/`, `cache/`, `middleware/`, `health/`, `filters/`, `prisma/`
+- **Repository pattern**: Services não acessam Prisma diretamente; usam `*Repository`
+- **Versionamento**: URI com prefixo `v` (ex: `/v1/auth/login`)
+
+## Stack
+
+- NestJS 11, Fastify, Prisma, PostgreSQL 17, Redis 7
+- Validação: `class-validator` + `class-transformer` (DTOs)
+- Config: `ConfigModule` com Joi (`DATABASE_URL`, `JWT_SECRET`, `REDIS_URL`)
+- Guards globais: `JwtAuthGuard`, `CustomThrottlerGuard`; rotas públicas com `@Public()`
+
+## Comandos
+
+- `pnpm prisma:migrate` – migrações
+- `pnpm prisma:seed` – seed
+- `pnpm run start:dev` – desenvolvimento
+- `pnpm test` – Jest
