@@ -1,25 +1,38 @@
 "use server";
 
-import { cookies } from "next/headers";
 import { routes } from "@/api-routes";
+import { getApiErrorMessage } from "@/lib/api-error";
+import { rethrowNavigationError, toUserFriendlyMessage } from "@/lib/action-utils";
+import {
+  logActionStart,
+  logActionSuccess,
+  logActionError,
+} from "@/lib/action-logger";
 import { serverFetch } from "@/lib/server-fetch";
-import { AUTH_COOKIE_NAME } from "@/constants";
-import type { IWallet } from "@/types";
+import { walletResponseSchema } from "@/schemas/api-response";
+import type { ActionResult } from "@/types";
 
-export async function getWalletCredits(): Promise<number | null> {
+export async function getWalletCredits(): Promise<ActionResult<number>> {
+  logActionStart("getWalletCredits");
   try {
-    const cookieStore = await cookies();
-    const token = cookieStore.get(AUTH_COOKIE_NAME)?.value;
-    if (!token) return null;
+    const res = await serverFetch(routes.wallet.get);
+    if (!res.ok) {
+      const data = (await res.json()) as Record<string, unknown>;
+      const msg = getApiErrorMessage(data, "Falha ao carregar saldo");
+      logActionError("getWalletCredits", new Error(msg), { status: res.status, responseData: data });
+      return { error: msg };
+    }
 
-    const res = await serverFetch(routes.wallet.get, {
-      headers: { Authorization: `Bearer ${token}` },
-    });
-
-    if (!res.ok) return null;
-    const wallet = (await res.json()) as IWallet;
-    return wallet.balance ?? null;
-  } catch {
-    return null;
+    const data = await res.json();
+    const parsed = walletResponseSchema.safeParse(data);
+    const balance = parsed.success ? parsed.data.balance : 0;
+    logActionSuccess("getWalletCredits", { balance });
+    return { data: balance };
+  } catch (err) {
+    logActionError("getWalletCredits", err);
+    rethrowNavigationError(err);
+    return {
+      error: toUserFriendlyMessage(err, "Falha ao carregar saldo"),
+    };
   }
 }

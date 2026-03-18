@@ -3,11 +3,19 @@
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { routes } from "@/api-routes";
+import { getApiErrorMessage } from "@/lib/api-error";
+import { rethrowNavigationError, toUserFriendlyMessage } from "@/lib/action-utils";
+import {
+  logActionStart,
+  logActionSuccess,
+  logActionError,
+} from "@/lib/action-logger";
 import { serverFetch } from "@/lib/server-fetch";
+import { zodFieldErrors } from "@/lib/zod-utils";
 import { AUTH_COOKIE_NAME } from "@/constants";
-import type { IAuthResponse, LoginState, RegisterState } from "@/types";
-import { loginSchema } from "@/schemas/auth-form";
-import { registerSchema } from "@/schemas/auth-form";
+import type { LoginState, RegisterState } from "@/types";
+import { loginSchema, registerSchema } from "@/schemas/auth-form";
+import { authResponseSchema } from "@/schemas/api-response";
 
 export async function loginAction(
   _prevState: LoginState | undefined,
@@ -19,20 +27,16 @@ export async function loginAction(
   });
 
   if (!parsed.success) {
-    const fieldErrors: Record<string, string[]> = {};
-    for (const issue of parsed.error.issues) {
-      const path = issue.path[0]?.toString() ?? "unknown";
-      if (!fieldErrors[path]) fieldErrors[path] = [];
-      fieldErrors[path].push(issue.message);
-    }
     return {
-      fieldErrors,
+      fieldErrors: zodFieldErrors(parsed.error),
       values: {
         email: String(formData.get("email") ?? ""),
         password: String(formData.get("password") ?? ""),
       },
     };
   }
+
+  logActionStart("loginAction", { email: parsed.data.email });
 
   try {
     const res = await serverFetch(routes.auth.login, {
@@ -47,10 +51,10 @@ export async function loginAction(
     const data = await res.json();
 
     if (!res.ok) {
-      const message =
-        data?.message ?? data?.error ?? "E-mail ou senha inválidos";
+      const msg = getApiErrorMessage(data, "E-mail ou senha inválidos");
+      logActionError("loginAction", new Error(msg), { email: parsed.data.email, status: res.status, responseData: data });
       return {
-        error: Array.isArray(message) ? message[0] : message,
+        error: msg,
         values: {
           email: parsed.data.email,
           password: String(formData.get("password") ?? ""),
@@ -58,7 +62,22 @@ export async function loginAction(
       };
     }
 
-    const auth = data as IAuthResponse;
+    const authParsed = authResponseSchema.safeParse(data);
+    if (!authParsed.success) {
+      logActionError("loginAction", new Error("Resposta da API inválida"), {
+        email: parsed.data.email,
+        status: res.status,
+        responseData: data,
+      });
+      return {
+        error: "Resposta da API inválida. Tente novamente.",
+        values: {
+          email: parsed.data.email,
+          password: String(formData.get("password") ?? ""),
+        },
+      };
+    }
+    const auth = authParsed.data;
     const cookieStore = await cookies();
 
     cookieStore.set(AUTH_COOKIE_NAME, auth.accessToken, {
@@ -69,14 +88,13 @@ export async function loginAction(
       path: "/",
     });
 
+    logActionSuccess("loginAction", { email: parsed.data.email });
     redirect("/dashboard");
   } catch (err) {
-    if (err && typeof err === "object" && "digest" in err) {
-      throw err;
-    }
+    logActionError("loginAction", err, { email: parsed.data.email });
+    rethrowNavigationError(err);
     return {
-      error:
-        err instanceof Error ? err.message : "An unexpected error occurred",
+      error: toUserFriendlyMessage(err, "E-mail ou senha inválidos"),
       values: {
         email: String(formData.get("email") ?? ""),
         password: String(formData.get("password") ?? ""),
@@ -97,14 +115,8 @@ export async function registerAction(
   });
 
   if (!parsed.success) {
-    const fieldErrors: Record<string, string[]> = {};
-    for (const issue of parsed.error.issues) {
-      const path = issue.path[0]?.toString() ?? "unknown";
-      if (!fieldErrors[path]) fieldErrors[path] = [];
-      fieldErrors[path].push(issue.message);
-    }
     return {
-      fieldErrors,
+      fieldErrors: zodFieldErrors(parsed.error),
       values: {
         name: String(formData.get("name") ?? ""),
         email: String(formData.get("email") ?? ""),
@@ -113,6 +125,8 @@ export async function registerAction(
       },
     };
   }
+
+  logActionStart("registerAction", { email: parsed.data.email });
 
   try {
     const res = await serverFetch(routes.auth.register, {
@@ -128,10 +142,10 @@ export async function registerAction(
     const data = await res.json();
 
     if (!res.ok) {
-      const message =
-        data?.message ?? data?.error ?? "Falha no cadastro";
+      const msg = getApiErrorMessage(data, "Falha no cadastro");
+      logActionError("registerAction", new Error(msg), { email: parsed.data.email, status: res.status, responseData: data });
       return {
-        error: Array.isArray(message) ? message[0] : message,
+        error: msg,
         values: {
           name: parsed.data.name,
           email: parsed.data.email,
@@ -141,7 +155,24 @@ export async function registerAction(
       };
     }
 
-    const auth = data as IAuthResponse;
+    const authParsed = authResponseSchema.safeParse(data);
+    if (!authParsed.success) {
+      logActionError("registerAction", new Error("Resposta da API inválida"), {
+        email: parsed.data.email,
+        status: res.status,
+        responseData: data,
+      });
+      return {
+        error: "Resposta da API inválida. Tente novamente.",
+        values: {
+          name: parsed.data.name,
+          email: parsed.data.email,
+          password: String(formData.get("password") ?? ""),
+          confirmPassword: String(formData.get("confirmPassword") ?? ""),
+        },
+      };
+    }
+    const auth = authParsed.data;
     const cookieStore = await cookies();
 
     cookieStore.set(AUTH_COOKIE_NAME, auth.accessToken, {
@@ -152,14 +183,13 @@ export async function registerAction(
       path: "/",
     });
 
+    logActionSuccess("registerAction", { email: parsed.data.email });
     redirect("/dashboard");
   } catch (err) {
-    if (err && typeof err === "object" && "digest" in err) {
-      throw err;
-    }
+    logActionError("registerAction", err, { email: parsed.data.email });
+    rethrowNavigationError(err);
     return {
-      error:
-        err instanceof Error ? err.message : "An unexpected error occurred",
+      error: toUserFriendlyMessage(err, "Falha no cadastro"),
       values: {
         name: String(formData.get("name") ?? ""),
         email: String(formData.get("email") ?? ""),
@@ -168,4 +198,12 @@ export async function registerAction(
       },
     };
   }
+}
+
+export async function logoutAction(): Promise<void> {
+  logActionStart("logoutAction");
+  const cookieStore = await cookies();
+  cookieStore.delete(AUTH_COOKIE_NAME);
+  logActionSuccess("logoutAction");
+  redirect("/auth/login");
 }
