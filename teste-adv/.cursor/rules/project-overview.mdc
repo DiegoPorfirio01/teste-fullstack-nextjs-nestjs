@@ -34,6 +34,10 @@ Frontend que consome API NestJS via `serverFetch`. Sem banco ou ORM direto.
 | `enums/` | Enums TypeScript |
 | `hooks/` | Custom hooks |
 | `middleware.ts` | Auth middleware (JWT cookie check) |
+| `instrumentation-client.ts` | Sentry init (browser/client runtime) |
+| `sentry.server.config.ts` | Sentry init (Node.js server runtime) |
+| `sentry.edge.config.ts` | Sentry init (Edge runtime) |
+| `instrumentation.ts` | Server-side registration hook (carrega Sentry configs + `onRequestError`) |
 
 ## Convenções gerais
 

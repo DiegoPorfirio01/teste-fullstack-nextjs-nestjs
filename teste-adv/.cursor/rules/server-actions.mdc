@@ -1,5 +1,5 @@
 ---
-description: Padrões para Server Actions — validação, logging, tratamento de erros, fluxo com useActionState
+description: Padrões para Server Actions — validação, tratamento de erros, fluxo com useActionState
 globs: actions/*.ts
 alwaysApply: false
 ---
@@ -49,8 +49,8 @@ export async function myAction(
     logActionSuccess("myAction");
     // redirect ou retornar { success: true }
   } catch (err) {
-    logActionError("myAction", err);
     rethrowNavigationError(err);
+    logActionError("myAction", err);
     return { error: toUserFriendlyMessage(err, "Fallback") };
   }
 }
@@ -62,11 +62,16 @@ Retornam `ActionResult<T>` (discriminated union: `{ data }` ou `{ error }`).
 
 ```ts
 export async function getData(): Promise<ActionResult<MyData[]>> {
+  logActionStart("getData");
   try {
     const res = await serverFetch(routes.resource.list);
     if (!res.ok) return { error: getApiErrorMessage(await res.json(), "Erro") };
     return { data: await res.json() };
-  } catch { return { error: "Erro ao carregar dados" }; }
+  } catch (err) {
+    rethrowNavigationError(err);
+    logActionError("getData", err);
+    return { error: "Erro ao carregar dados" };
+  }
 }
 ```
 

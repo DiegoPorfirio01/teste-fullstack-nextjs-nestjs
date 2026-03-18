@@ -48,7 +48,7 @@ teste-adv/
 │   ├── utils.ts                  # cn() (clsx + tailwind-merge)
 │   ├── env.ts                    # Validação de env com Zod
 │   ├── action-utils.ts           # rethrowNavigationError, toUserFriendlyMessage
-│   ├── action-logger.ts          # Logging estruturado de actions
+│   ├── action-logger.ts          # logActionStart/Success/Error (Sentry.logger)
 │   ├── api-error.ts              # Extração de mensagens da API
 │   └── zod-utils.ts              # zodFieldErrors helper
 ├── api-routes.ts                 # URLs centralizadas da API NestJS
@@ -56,8 +56,10 @@ teste-adv/
 ├── enums/                        # TransactionType, TransactionStatus, etc.
 ├── hooks/                        # Custom hooks
 ├── middleware.ts                 # Auth middleware (JWT cookie check)
-├── instrumentation.ts            # Sentry server-side
-└── instrumentation-client.ts     # Sentry client-side
+├── instrumentation.ts            # Sentry server-side (carrega configs + onRequestError)
+├── instrumentation-client.ts     # Sentry client-side (browser runtime)
+├── sentry.server.config.ts       # Sentry init (Node.js runtime)
+└── sentry.edge.config.ts         # Sentry init (Edge runtime)
 ```
 
 ## 3. Padrões de Data Fetching
@@ -193,21 +195,50 @@ pnpm dlx shadcn@latest docs <component>
 
 ## 8. Observabilidade com Sentry
 
-Sentry integrado via `@sentry/nextjs` com `withSentryConfig` no `next.config.ts`.
+Sentry integrado via `@sentry/nextjs` com `withSentryConfig` no `next.config.ts`, cobrindo os **3 runtimes** do Next.js:
 
-| Recurso           | Configuração                                                         |
-| ----------------- | -------------------------------------------------------------------- |
-| Source maps       | `widenClientFileUpload: true`                                        |
-| Ad-blocker bypass | `tunnelRoute: "/monitoring"`                                         |
-| Error boundaries  | `global-error.tsx` com Sentry integration                            |
-| Instrumentação    | `instrumentation.ts` (server) + `instrumentation-client.ts` (client) |
+| Runtime | Arquivo de config | DSN env var |
+|---|---|---|
+| Browser (client) | `instrumentation-client.ts` | `NEXT_PUBLIC_SENTRY_DSN` |
+| Node.js (server) | `sentry.server.config.ts` | `SENTRY_DSN` |
+| Edge | `sentry.edge.config.ts` | `SENTRY_DSN` |
 
-| Ambiente        | Traces | Session Replay | Erros                      |
-| --------------- | ------ | -------------- | -------------------------- |
-| Desenvolvimento | 100%   | 100%           | 100%                       |
-| Produção        | 10%    | 10%            | 100% (em sessões com erro) |
+O `instrumentation.ts` carrega o config correto conforme `NEXT_RUNTIME` e exporta `onRequestError` para captura automática de erros server-side.
 
-Referência: Skill [`.agents/skills/sentry-nextjs-sdk/SKILL.md`](.agents/skills/sentry-nextjs-sdk/SKILL.md)
+### Features habilitadas
+
+| Recurso | Configuração |
+|---|---|
+| Error monitoring | `captureException` em error boundaries + `onRequestError` no server |
+| Tracing | `tracesSampleRate` (100% dev, 10% prod) |
+| Session Replay | `replayIntegration()` (10% normal, 100% com erro) |
+| Source maps | `widenClientFileUpload: true` |
+| Ad-blocker bypass | `tunnelRoute: "/monitoring"` |
+| Logs estruturados | `enableLogs: true` nos 3 runtimes |
+| Console capture | `consoleLoggingIntegration` captura `console.warn`/`console.error` no browser |
+| Identificação | `Sentry.setUser()` após login/register, `null` no logout |
+
+### Logs estruturados nas Server Actions
+
+Todas as server actions usam `lib/action-logger.ts` que integra `Sentry.logger.*` com `getIsolationScope()` para logs per-request sem vazamento entre requests:
+
+```ts
+import { logActionStart, logActionSuccess, logActionError } from "@/lib/action-logger";
+
+logActionStart("transferAction", { receiverEmail, amount });
+try {
+  // ... lógica da action
+  logActionSuccess("transferAction", { receiverEmail, amount });
+} catch (err) {
+  rethrowNavigationError(err);
+  logActionError("transferAction", err, { receiverEmail, amount });
+  // logActionError também chama captureException (erro aparece em Issues E Logs)
+}
+```
+
+Em produção, `beforeSendLog` filtra logs `debug` e `trace` para reduzir volume e custo.
+
+Referência: Skill [`.agents/skills/sentry-nextjs-sdk/SKILL.md`](.agents/skills/sentry-nextjs-sdk/SKILL.md) | Rule [`.cursor/rules/sentry-observability.mdc`](.cursor/rules/sentry-observability.mdc)
 
 ## 9. Cache Components (Preparação para PPR)
 
@@ -301,6 +332,7 @@ Rules são arquivos `.mdc` que o Cursor carrega automaticamente. Cada rule tem u
 | `shadcn-ui.mdc`        | `**/*.tsx`                                             | Componentes, forms, estilização, ícones               |
 | `testing.mdc`          | `**/*.{test,spec}.{ts,tsx}`                            | Vitest, mocking, convenções de teste                  |
 | `api-integration.mdc`  | `lib/server-fetch.ts`, `api-routes.ts`, `actions/*.ts` | serverFetch, rotas, auth flow                         |
+| `sentry-observability.mdc` | `instrumentation*.ts`, `sentry.*.ts`, `lib/action-logger.ts`, `actions/*.ts` | Sentry logs, 3 runtimes, action-logger, setUser |
 
 As rules com `alwaysApply: true` são carregadas em toda sessão. As demais são **auto-attached** quando arquivos que correspondem ao glob estão abertos — por exemplo, `server-actions.mdc` só é ativada ao editar arquivos em `actions/`.
 
@@ -415,11 +447,12 @@ pnpm test:coverage    # Vitest com coverage
 # Obrigatória
 NEXT_PUBLIC_API_URL=http://localhost:3001
 
-# Sentry (opcional)
-NEXT_PUBLIC_SENTRY_DSN=
+# Sentry (opcional para dev local)
+NEXT_PUBLIC_SENTRY_DSN=          # DSN público (browser/client)
+SENTRY_DSN=                      # DSN privado (server/edge)
 SENTRY_ORG=
 SENTRY_PROJECT=
-SENTRY_AUTH_TOKEN=
+SENTRY_AUTH_TOKEN=               # Secret — use apenas em CI/CD
 ```
 
 Validação via Zod em `lib/env.ts` — a aplicação não sobe se `NEXT_PUBLIC_API_URL` for inválida.

@@ -62,6 +62,7 @@ export function middleware(request: NextRequest) {
 }
 
 export const config = {
+  // NOTE: /monitoring (Sentry tunnel route) must NOT be listed here
   matcher: [
     '/',
     '/dashboard/:path*',

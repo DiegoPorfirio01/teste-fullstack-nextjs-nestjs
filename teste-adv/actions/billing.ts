@@ -7,12 +7,12 @@ import {
   rethrowNavigationError,
   toUserFriendlyMessage,
 } from '@/lib/action-utils';
+import { serverFetch } from '@/lib/server-fetch';
 import {
   logActionStart,
   logActionSuccess,
   logActionError,
 } from '@/lib/action-logger';
-import { serverFetch } from '@/lib/server-fetch';
 import type { BuyCreditsState } from '@/types';
 
 export async function buyCreditsAction(
@@ -37,11 +37,6 @@ export async function buyCreditsAction(
 
     if (!res.ok) {
       const msg = getApiErrorMessage(data, 'Falha ao comprar créditos');
-      logActionError('buyCreditsAction', new Error(msg), {
-        packageId,
-        status: res.status,
-        responseData: data,
-      });
       return { error: msg };
     }
 
@@ -50,8 +45,8 @@ export async function buyCreditsAction(
     logActionSuccess('buyCreditsAction', { packageId });
     return { success: true };
   } catch (err) {
-    logActionError('buyCreditsAction', err, { packageId });
     rethrowNavigationError(err);
+    logActionError('buyCreditsAction', err, { packageId });
     return {
       error: toUserFriendlyMessage(err, 'Erro inesperado ao comprar créditos'),
     };

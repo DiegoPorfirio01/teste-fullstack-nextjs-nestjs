@@ -14,7 +14,20 @@ Sentry.init({
 
   enableLogs: true,
 
-  integrations: [Sentry.replayIntegration()],
+  beforeSendLog: (log) => {
+    if (
+      process.env.NODE_ENV === 'production' &&
+      (log.level === 'debug' || log.level === 'trace')
+    ) {
+      return null;
+    }
+    return log;
+  },
+
+  integrations: [
+    Sentry.replayIntegration(),
+    Sentry.consoleLoggingIntegration({ levels: ['warn', 'error'] }),
+  ],
 });
 
 // Hook into App Router navigation transitions (App Router only)

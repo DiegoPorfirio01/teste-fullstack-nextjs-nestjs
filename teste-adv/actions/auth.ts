@@ -8,17 +8,18 @@ import {
   rethrowNavigationError,
   toUserFriendlyMessage,
 } from '@/lib/action-utils';
-import {
-  logActionStart,
-  logActionSuccess,
-  logActionError,
-} from '@/lib/action-logger';
 import { serverFetch } from '@/lib/server-fetch';
 import { zodFieldErrors } from '@/lib/zod-utils';
 import { AUTH_COOKIE_NAME } from '@/constants';
 import type { LoginState, RegisterState } from '@/types';
 import { loginSchema, registerSchema } from '@/schemas/auth-form';
+import * as Sentry from '@sentry/nextjs';
 import { authResponseSchema } from '@/schemas/api-response';
+import {
+  logActionStart,
+  logActionSuccess,
+  logActionError,
+} from '@/lib/action-logger';
 
 export async function loginAction(
   _prevState: LoginState | undefined,
@@ -56,11 +57,6 @@ export async function loginAction(
 
     if (!res.ok) {
       const msg = getApiErrorMessage(data, 'E-mail ou senha inválidos');
-      logActionError('loginAction', new Error(msg), {
-        email: parsed.data.email,
-        status: res.status,
-        responseData: data,
-      });
       return {
         error: msg,
         values: {
@@ -72,11 +68,6 @@ export async function loginAction(
 
     const authParsed = authResponseSchema.safeParse(data);
     if (!authParsed.success) {
-      logActionError('loginAction', new Error('Resposta da API inválida'), {
-        email: parsed.data.email,
-        status: res.status,
-        responseData: data,
-      });
       return {
         error: 'Resposta da API inválida. Tente novamente.',
         values: {
@@ -96,11 +87,12 @@ export async function loginAction(
       path: '/',
     });
 
+    Sentry.setUser({ id: auth.user.id, email: auth.user.email });
     logActionSuccess('loginAction', { email: parsed.data.email });
     redirect('/dashboard');
   } catch (err) {
-    logActionError('loginAction', err, { email: parsed.data.email });
     rethrowNavigationError(err);
+    logActionError('loginAction', err, { email: parsed.data.email });
     return {
       error: toUserFriendlyMessage(err, 'E-mail ou senha inválidos'),
       values: {
@@ -152,11 +144,6 @@ export async function registerAction(
 
     if (!res.ok) {
       const msg = getApiErrorMessage(data, 'Falha no cadastro');
-      logActionError('registerAction', new Error(msg), {
-        email: parsed.data.email,
-        status: res.status,
-        responseData: data,
-      });
       return {
         error: msg,
         values: {
@@ -170,11 +157,6 @@ export async function registerAction(
 
     const authParsed = authResponseSchema.safeParse(data);
     if (!authParsed.success) {
-      logActionError('registerAction', new Error('Resposta da API inválida'), {
-        email: parsed.data.email,
-        status: res.status,
-        responseData: data,
-      });
       return {
         error: 'Resposta da API inválida. Tente novamente.',
         values: {
@@ -196,11 +178,12 @@ export async function registerAction(
       path: '/',
     });
 
+    Sentry.setUser({ id: auth.user.id, email: auth.user.email });
     logActionSuccess('registerAction', { email: parsed.data.email });
     redirect('/dashboard');
   } catch (err) {
-    logActionError('registerAction', err, { email: parsed.data.email });
     rethrowNavigationError(err);
+    logActionError('registerAction', err, { email: parsed.data.email });
     return {
       error: toUserFriendlyMessage(err, 'Falha no cadastro'),
       values: {
@@ -217,6 +200,7 @@ export async function logoutAction(): Promise<void> {
   logActionStart('logoutAction');
   const cookieStore = await cookies();
   cookieStore.delete(AUTH_COOKIE_NAME);
+  Sentry.setUser(null);
   logActionSuccess('logoutAction');
   redirect('/auth/login');
 }

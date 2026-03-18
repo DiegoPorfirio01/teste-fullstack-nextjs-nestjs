@@ -1,0 +1,126 @@
+---
+description: Sentry — observabilidade, logs estruturados, error monitoring, configuração dos 3 runtimes
+globs: instrumentation*.ts, sentry.*.ts, lib/action-logger.ts, actions/*.ts
+alwaysApply: false
+---
+
+# Sentry & Observabilidade
+
+O projeto usa `@sentry/nextjs` para error monitoring, tracing, session replay e **logs estruturados** nos 3 runtimes do Next.js.
+
+## Arquitetura dos 3 runtimes
+
+| Runtime | Arquivo de config | DSN env var |
+|---|---|---|
+| Browser (client) | `instrumentation-client.ts` | `NEXT_PUBLIC_SENTRY_DSN` |
+| Node.js (server) | `sentry.server.config.ts` | `SENTRY_DSN` |
+| Edge | `sentry.edge.config.ts` | `SENTRY_DSN` |
+
+O `instrumentation.ts` importa o config correto conforme `NEXT_RUNTIME` e exporta `onRequestError` para captura automática de erros server-side.
+
+## Logs estruturados (`Sentry.logger.*`)
+
+Logs estão habilitados nos 3 runtimes via `enableLogs: true`. Usamos `Sentry.logger.*` (não `console.log`) para logs que devem aparecer no Sentry.
+
+### Níveis disponíveis
+
+| Nível | Método | Uso |
+|---|---|---|
+| `trace` | `Sentry.logger.trace()` | Granular, entrada/saída de funções (filtrado em prod) |
+| `debug` | `Sentry.logger.debug()` | Diagnóstico em dev (filtrado em prod) |
+| `info` | `Sentry.logger.info()` | Marcos de negócio, confirmações |
+| `warn` | `Sentry.logger.warn()` | Estado degradado, limites se aproximando |
+| `error` | `Sentry.logger.error()` | Falhas que precisam de atenção |
+| `fatal` | `Sentry.logger.fatal()` | Sistema indisponível |
+
+### Filtragem em produção
+
+`beforeSendLog` está configurado nos 3 runtimes para dropar `debug` e `trace` em prod, reduzindo volume e custo.
+
+### Atributos
+
+Valores aceitos: `string`, `number`, `boolean`. Não enviar `undefined`, arrays ou objetos.
+
+## Action Logger (`lib/action-logger.ts`)
+
+Toda server action deve usar as 3 funções de logging:
+
+```ts
+import {
+  logActionStart,
+  logActionSuccess,
+  logActionError,
+} from "@/lib/action-logger";
+```
+
+### `logActionStart(action, attrs?)`
+
+- Chame **antes** do `try`
+- Define atributos no `isolationScope` (per-request, sem vazamento entre requests)
+- Emite `Sentry.logger.info` com template parametrizado
+
+### `logActionSuccess(action, attrs?)`
+
+- Chame após operação bem-sucedida, **antes** de `redirect` ou `return`
+- Emite `Sentry.logger.info`
+
+### `logActionError(action, err, attrs?)`
+
+- Chame no `catch`, **após** `rethrowNavigationError(err)`
+- Emite `Sentry.logger.error` + `Sentry.captureException` (erro aparece em Issues E Logs)
+
+### Padrão em mutation actions
+
+```ts
+logActionStart("myAction", { relevantField: value });
+
+try {
+  const res = await serverFetch(routes.resource.create, { ... });
+  if (!res.ok) return { error: msg };
+
+  logActionSuccess("myAction", { relevantField: value });
+  return { success: true };
+} catch (err) {
+  rethrowNavigationError(err);
+  logActionError("myAction", err, { relevantField: value });
+  return { error: toUserFriendlyMessage(err, "Fallback") };
+}
+```
+
+### Padrão em read actions
+
+```ts
+logActionStart("getData");
+
+try {
+  const res = await serverFetch(routes.resource.list);
+  if (!res.ok) return { error: msg };
+  return { data: await res.json() };
+} catch (err) {
+  rethrowNavigationError(err);
+  logActionError("getData", err);
+  return { error: "Erro ao carregar dados" };
+}
+```
+
+## Identificação de usuário
+
+- `Sentry.setUser({ id, email })` é chamado após login/register bem-sucedido em `actions/auth.ts`
+- `Sentry.setUser(null)` é chamado no logout
+- Isso correlaciona erros e logs ao usuário no dashboard Sentry
+
+## Console capture (client-side)
+
+`consoleLoggingIntegration({ levels: ['warn', 'error'] })` captura automaticamente `console.warn` e `console.error` no browser e envia como logs estruturados ao Sentry.
+
+## Boas práticas
+
+1. **Wide events** — Prefira um log completo com todo contexto vs. vários logs fragmentados
+2. **Não logar dados sensíveis** — Nunca inclua senhas, tokens ou dados de cartão nos atributos
+3. **Use `getIsolationScope()`** — No server-side, para atributos per-request (nunca `getGlobalScope()` para dados de request)
+4. **Use `Sentry.logger.fmt`** — Para mensagens parametrizadas pesquisáveis: `` Sentry.logger.fmt`Action ${name} started` ``
+5. **Sempre `enableLogs: true`** — Nos 3 configs (client, server, edge)
+
+## Tunnel route
+
+`tunnelRoute: '/monitoring'` no `next.config.ts` cria proxy para bypass de ad-blockers. Essa rota **não deve** estar no matcher do `middleware.ts`.

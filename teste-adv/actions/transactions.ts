@@ -8,13 +8,13 @@ import {
   rethrowNavigationError,
   toUserFriendlyMessage,
 } from '@/lib/action-utils';
+import { serverFetch } from '@/lib/server-fetch';
+import { extractList } from '@/lib/api-response';
 import {
   logActionStart,
   logActionSuccess,
   logActionError,
 } from '@/lib/action-logger';
-import { serverFetch } from '@/lib/server-fetch';
-import { extractList } from '@/lib/api-response';
 import {
   TransactionDirection,
   TransactionStatus,
@@ -179,12 +179,6 @@ export async function transferAction(
     const data = (await res.json()) as Record<string, unknown>;
     if (!res.ok) {
       const msg = getApiErrorMessage(data, 'Falha ao transferir');
-      logActionError('transferAction', new Error(msg), {
-        receiverEmail,
-        amount,
-        status: res.status,
-        responseData: data,
-      });
       return { error: msg, receiverEmail, amount };
     }
 
@@ -193,8 +187,8 @@ export async function transferAction(
     logActionSuccess('transferAction', { receiverEmail, amount });
     return { success: true };
   } catch (err) {
-    logActionError('transferAction', err, { receiverEmail, amount });
     rethrowNavigationError(err);
+    logActionError('transferAction', err, { receiverEmail, amount });
     return {
       error: toUserFriendlyMessage(err, 'Erro inesperado ao transferir'),
       receiverEmail,
@@ -222,11 +216,6 @@ export async function reverseAction(
     const data = (await res.json()) as Record<string, unknown>;
     if (!res.ok) {
       const msg = getApiErrorMessage(data, 'Falha ao reverter transação');
-      logActionError('reverseAction', new Error(msg), {
-        transactionId,
-        status: res.status,
-        responseData: data,
-      });
       return { error: msg };
     }
 
@@ -235,8 +224,8 @@ export async function reverseAction(
     logActionSuccess('reverseAction', { transactionId });
     return { success: true };
   } catch (err) {
-    logActionError('reverseAction', err, { transactionId });
     rethrowNavigationError(err);
+    logActionError('reverseAction', err, { transactionId });
     return {
       error: toUserFriendlyMessage(err, 'Erro inesperado ao reverter'),
     };
@@ -249,6 +238,7 @@ export async function getTransactionsByPeriod(
   days: 7 | 30 | 90,
 ): Promise<ActionResult<TransactionByPeriodItem[]>> {
   logActionStart('getTransactionsByPeriod', { days });
+
   try {
     const res = await serverFetch(routes.transactions.byPeriod(days));
     if (!res.ok) {
@@ -257,11 +247,6 @@ export async function getTransactionsByPeriod(
         data,
         'Falha ao carregar dados do gráfico',
       );
-      logActionError('getTransactionsByPeriod', new Error(msg), {
-        days,
-        status: res.status,
-        responseData: data,
-      });
       return { error: msg };
     }
 
@@ -274,11 +259,10 @@ export async function getTransactionsByPeriod(
       enviado: Number(item.enviado ?? 0),
     }));
 
-    logActionSuccess('getTransactionsByPeriod', { days });
     return { data: items };
   } catch (err) {
-    logActionError('getTransactionsByPeriod', err, { days });
     rethrowNavigationError(err);
+    logActionError('getTransactionsByPeriod', err, { days });
     return {
       error: toUserFriendlyMessage(
         err,
@@ -290,6 +274,7 @@ export async function getTransactionsByPeriod(
 
 export async function getTransactions(): Promise<ActionResult<ITransaction[]>> {
   logActionStart('getTransactions');
+
   try {
     const [profileResult, transactionsRes] = await Promise.all([
       getProfileCached(),
@@ -299,10 +284,6 @@ export async function getTransactions(): Promise<ActionResult<ITransaction[]>> {
     if (!transactionsRes.ok) {
       const data = (await transactionsRes.json()) as Record<string, unknown>;
       const msg = getApiErrorMessage(data, 'Falha ao buscar transações');
-      logActionError('getTransactions', new Error(msg), {
-        status: transactionsRes.status,
-        responseData: data,
-      });
       return { error: msg };
     }
 
@@ -322,11 +303,10 @@ export async function getTransactions(): Promise<ActionResult<ITransaction[]>> {
     const transactions = rawList.map((raw) =>
       mapRawToTransaction(raw as RawTransaction, userId),
     );
-    logActionSuccess('getTransactions', { count: transactions.length });
     return { data: transactions };
   } catch (err) {
-    logActionError('getTransactions', err);
     rethrowNavigationError(err);
+    logActionError('getTransactions', err);
     return {
       error: toUserFriendlyMessage(err, 'Falha ao buscar transações'),
     };

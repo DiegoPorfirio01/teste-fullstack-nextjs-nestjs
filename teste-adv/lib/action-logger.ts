@@ -1,73 +1,43 @@
+import * as Sentry from '@sentry/nextjs';
+
+type LogAttributes = Record<string, string | number | boolean>;
+
 /**
- * Structured logging for server actions.
- * Logs action start, success, and errors (with stack) for observability.
+ * Sets per-request isolation scope attributes and logs the start of a server action.
+ * Uses getIsolationScope to avoid cross-request attribute leakage.
  */
-
-export type LogLevel = 'info' | 'success' | 'error';
-
-export interface ActionLogContext {
-  action: string;
-  userId?: string;
-  [key: string]: unknown;
-}
-
-function logStructured(
-  level: LogLevel,
-  context: ActionLogContext,
-  message?: string,
-): void {
-  const entry = {
-    level,
-    timestamp: new Date().toISOString(),
-    ...context,
-    ...(message ? { message } : {}),
-  };
-  const line = JSON.stringify(entry);
-  switch (level) {
-    case 'error':
-      console.error(line);
-      break;
-    case 'success':
-    case 'info':
-    default:
-      // eslint-disable-next-line no-console -- logger utility
-      console.log(line);
-      break;
-  }
-}
-
-/** Log when an action starts */
 export function logActionStart(
   action: string,
-  context?: Record<string, unknown>,
+  attrs?: LogAttributes,
 ): void {
-  logStructured('info', { action, ...context }, 'action_start');
+  Sentry.getIsolationScope().setAttributes({ action, ...attrs });
+  Sentry.logger.info(Sentry.logger.fmt`Action ${action} started`, attrs);
 }
 
-/** Log when an action completes successfully */
+/**
+ * Logs a successful server action with optional result attributes.
+ * Follows the "wide event" pattern — one log with all relevant context.
+ */
 export function logActionSuccess(
   action: string,
-  context?: Record<string, unknown>,
+  attrs?: LogAttributes,
 ): void {
-  logStructured('success', { action, ...context }, 'action_success');
+  Sentry.logger.info(Sentry.logger.fmt`Action ${action} succeeded`, attrs);
 }
 
-/** Log when an action fails - includes full error with stack */
+/**
+ * Logs a failed server action. Also calls captureException so the error
+ * appears in Sentry Issues, not just Logs.
+ */
 export function logActionError(
   action: string,
   err: unknown,
-  context?: Record<string, unknown>,
+  attrs?: LogAttributes,
 ): void {
-  const errorContext: ActionLogContext = {
-    action,
-    ...context,
-  };
-  if (err instanceof Error) {
-    errorContext.errorMessage = err.message;
-    errorContext.errorStack = err.stack;
-    errorContext.errorName = err.name;
-  } else {
-    errorContext.errorMessage = String(err);
-  }
-  logStructured('error', errorContext, 'action_error');
+  const reason = err instanceof Error ? err.message : String(err);
+  Sentry.logger.error(Sentry.logger.fmt`Action ${action} failed`, {
+    reason,
+    ...attrs,
+  });
+  Sentry.captureException(err, { tags: { action } });
 }

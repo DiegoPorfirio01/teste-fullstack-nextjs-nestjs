@@ -10,11 +10,6 @@ import {
   rethrowNavigationError,
   toUserFriendlyMessage,
 } from '@/lib/action-utils';
-import {
-  logActionStart,
-  logActionSuccess,
-  logActionError,
-} from '@/lib/action-logger';
 import { serverFetch } from '@/lib/server-fetch';
 import { zodFieldErrors } from '@/lib/zod-utils';
 import { AUTH_COOKIE_NAME } from '@/constants';
@@ -29,20 +24,22 @@ import {
   updatePasswordSchema,
   updateProfileSchema,
 } from '@/schemas/profile-form';
+import {
+  logActionStart,
+  logActionSuccess,
+  logActionError,
+} from '@/lib/action-logger';
 
 const JSON_HEADERS = { 'Content-Type': 'application/json' } as const;
 
 export async function getProfileAction(): Promise<ActionResult<IUserProfile>> {
   logActionStart('getProfileAction');
+
   try {
     const res = await serverFetch(routes.auth.profile, { method: 'GET' });
     if (!res.ok) {
       const data = (await res.json()) as Record<string, unknown>;
       const msg = getApiErrorMessage(data, 'Falha ao carregar perfil');
-      logActionError('getProfileAction', new Error(msg), {
-        status: res.status,
-        responseData: data,
-      });
       return { error: msg };
     }
 
@@ -53,11 +50,10 @@ export async function getProfileAction(): Promise<ActionResult<IUserProfile>> {
       email: String(data.email ?? ''),
       avatarUrl: data.avatarUrl != null ? String(data.avatarUrl) : undefined,
     };
-    logActionSuccess('getProfileAction', { userId: profile.id });
     return { data: profile };
   } catch (err) {
-    logActionError('getProfileAction', err);
     rethrowNavigationError(err);
+    logActionError('getProfileAction', err);
     return {
       error: toUserFriendlyMessage(err, 'Falha ao carregar perfil'),
     };
@@ -103,10 +99,6 @@ export async function updatePasswordAction(
 
     if (!res.ok) {
       const msg = getApiErrorMessage(data, 'Falha ao alterar senha');
-      logActionError('updatePasswordAction', new Error(msg), {
-        status: res.status,
-        responseData: data,
-      });
       return {
         error: msg,
         values: {
@@ -121,8 +113,8 @@ export async function updatePasswordAction(
     logActionSuccess('updatePasswordAction');
     return { success: true };
   } catch (err) {
-    logActionError('updatePasswordAction', err);
     rethrowNavigationError(err);
+    logActionError('updatePasswordAction', err);
     return {
       error: toUserFriendlyMessage(err, 'Erro inesperado ao alterar senha'),
       values: {
@@ -149,7 +141,7 @@ export async function updateProfileAction(
     };
   }
 
-  logActionStart('updateProfileAction', { fullName: parsed.data.fullName });
+  logActionStart('updateProfileAction');
 
   try {
     const res = await serverFetch(routes.auth.profile, {
@@ -162,11 +154,6 @@ export async function updateProfileAction(
 
     if (!res.ok) {
       const msg = getApiErrorMessage(data, 'Falha ao atualizar perfil');
-      logActionError('updateProfileAction', new Error(msg), {
-        fullName: parsed.data.fullName,
-        status: res.status,
-        responseData: data,
-      });
       return {
         error: msg,
         values: { fullName: parsed.data.fullName },
@@ -174,13 +161,11 @@ export async function updateProfileAction(
     }
 
     revalidatePath('/perfil');
-    logActionSuccess('updateProfileAction', { fullName: parsed.data.fullName });
+    logActionSuccess('updateProfileAction');
     return { success: true };
   } catch (err) {
-    logActionError('updateProfileAction', err, {
-      fullName: parsed.data.fullName,
-    });
     rethrowNavigationError(err);
+    logActionError('updateProfileAction', err);
     return {
       error: toUserFriendlyMessage(err, 'Erro inesperado ao atualizar perfil'),
       values: { fullName: parsed.data.fullName },
@@ -206,10 +191,6 @@ export async function deleteAccountAction(
 
     if (!res.ok) {
       const msg = getApiErrorMessage(data, 'Falha ao excluir conta');
-      logActionError('deleteAccountAction', new Error(msg), {
-        status: res.status,
-        responseData: data,
-      });
       return { error: msg };
     }
 
@@ -218,8 +199,8 @@ export async function deleteAccountAction(
     logActionSuccess('deleteAccountAction');
     redirect('/auth/login');
   } catch (err) {
-    logActionError('deleteAccountAction', err);
     rethrowNavigationError(err);
+    logActionError('deleteAccountAction', err);
     return {
       error: toUserFriendlyMessage(err, 'Erro inesperado ao excluir conta'),
     };
