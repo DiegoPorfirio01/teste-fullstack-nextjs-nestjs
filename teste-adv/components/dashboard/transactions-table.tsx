@@ -79,7 +79,11 @@ function RevertButton({
   if (disabled) {
     return (
       <Tooltip>
-        <TooltipTrigger asChild>{trigger}</TooltipTrigger>
+        <TooltipTrigger asChild>
+          <span className="inline-flex cursor-not-allowed">
+            {trigger}
+          </span>
+        </TooltipTrigger>
         <TooltipContent>
           Só é possível reverter dentro de 10 minutos após a transferência.
         </TooltipContent>
