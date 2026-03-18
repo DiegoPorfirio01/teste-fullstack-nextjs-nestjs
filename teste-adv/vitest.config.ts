@@ -11,6 +11,7 @@ export default defineConfig({
       NEXT_PUBLIC_API_URL: "http://localhost:3001",
     },
     include: ["**/*.{test,spec}.{ts,tsx}"],
+    exclude: ["e2e/**", "**/e2e/**", "node_modules"],
     globals: true,
     coverage: {
       provider: "v8",
