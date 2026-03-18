@@ -84,7 +84,7 @@ describe("serverFetch", () => {
     );
   });
 
-  it("redirects to /auth/login on 401", async () => {
+  it("redirects to /auth/login on 401 when redirectOn401 is true (default)", async () => {
     mockRedirect.mockClear();
     mockFetch.mockResolvedValue(new Response("Unauthorized", { status: 401 }));
 
@@ -92,5 +92,17 @@ describe("serverFetch", () => {
       "REDIRECT"
     );
     expect(mockRedirect).toHaveBeenCalledWith("/auth/login");
+  });
+
+  it("does not redirect on 401 when redirectOn401 is false", async () => {
+    mockRedirect.mockClear();
+    mockFetch.mockResolvedValue(new Response("Unauthorized", { status: 401 }));
+
+    const res = await serverFetch("https://api.test/v1/auth/login", {
+      redirectOn401: false,
+    });
+
+    expect(res.status).toBe(401);
+    expect(mockRedirect).not.toHaveBeenCalled();
   });
 });

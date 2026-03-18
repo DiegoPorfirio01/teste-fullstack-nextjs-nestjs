@@ -6,6 +6,8 @@ import { AUTH_COOKIE_NAME } from "@/constants";
 type FetchOptions = RequestInit & {
   /** Se true, inclui Authorization Bearer na requisição (default: true) */
   withCredentials?: boolean;
+  /** Se true, redireciona para /auth/login em 401 (default: true). Use false em login/register para tratar credenciais inválidas. */
+  redirectOn401?: boolean;
 };
 
 /**
@@ -22,7 +24,12 @@ export async function serverFetch(
   url: string | URL,
   options: FetchOptions = {}
 ): Promise<Response> {
-  const { withCredentials = true, headers = {}, ...rest } = options;
+  const {
+    withCredentials = true,
+    redirectOn401 = true,
+    headers = {},
+    ...rest
+  } = options;
   const headersInit: HeadersInit = { ...headers };
 
   if (withCredentials) {
@@ -39,6 +46,6 @@ export async function serverFetch(
     headers: headersInit,
   });
 
-  if (res.status === 401) redirect("/auth/login");
+  if (res.status === 401 && redirectOn401) redirect("/auth/login");
   return res;
 }

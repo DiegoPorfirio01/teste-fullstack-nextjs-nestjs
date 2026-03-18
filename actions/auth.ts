@@ -41,6 +41,7 @@ export async function loginAction(
   try {
     const res = await serverFetch(routes.auth.login, {
       method: "POST",
+      redirectOn401: false,
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         email: parsed.data.email,
@@ -131,6 +132,7 @@ export async function registerAction(
   try {
     const res = await serverFetch(routes.auth.register, {
       method: "POST",
+      redirectOn401: false,
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         name: parsed.data.name,
