@@ -13,7 +13,7 @@ Frontend que consome API NestJS via `serverFetch`. Sem banco ou ORM direto.
 - **Package manager:** pnpm
 - **UI:** shadcn/ui (radix-nova) + lucide-react
 - **Validação:** Zod v4
-- **Testes:** Vitest + React Testing Library
+- **Testes:** Vitest + React Testing Library (unit) | Playwright (e2e)
 - **Observabilidade:** Sentry (`@sentry/nextjs`)
 - **Temas:** next-themes (light/dark)
 

@@ -221,6 +221,8 @@ A migração de `unstable_cache` para `'use cache'` elimina cache keys manuais e
 
 ## 10. Testes
 
+### Unitários (Vitest)
+
 | Ferramenta | Uso |
 |------------|-----|
 | **Vitest** ^4 | Test runner (jsdom environment) |
@@ -236,6 +238,27 @@ pnpm test:coverage     # com relatório de coverage
 ```
 
 Padrão de mock para Server Actions: mockar `@/lib/env` → `serverFetch` → `next/headers` → `next/navigation` → `action-utils`, depois import dinâmico da action.
+
+### E2E (Playwright)
+
+Testes end-to-end com Playwright cobrem fluxos de autenticação, redirecionamentos e navegação no dashboard. O Playwright sobe automaticamente o Next.js e a NestJS API (`teste-api`) antes de rodar os testes.
+
+**Pré-requisitos:**
+- PostgreSQL e Redis rodando (para `teste-api`)
+- Database migrado e seed executado em `teste-api`: `prisma migrate dev` + `prisma db seed`
+- Usuário de teste: `admin@example.com` / `password123`
+
+```bash
+pnpm test:e2e           # roda todos os testes e2e (headless)
+pnpm test:e2e:ui         # abre a UI do Playwright
+pnpm test:e2e:headed     # abre o navegador visível
+```
+
+| Arquivo | Descrição |
+|---------|-----------|
+| `e2e/auth.setup.ts` | Login e persistência do estado de autenticação |
+| `e2e/auth.spec.ts` | Login, registro, redirecionamentos (sem token) |
+| `e2e/dashboard.spec.ts` | Dashboard e rotas protegidas (com token) |
 
 ## 11. Async APIs (Next.js 15+)
 

@@ -1,6 +1,6 @@
 ---
-description: Padrões de testes — Vitest, mocking de Server Actions, React Testing Library
-globs: "**/*.{test,spec}.{ts,tsx}"
+description: Padrões de testes — Vitest (unit), Playwright (e2e), mocking de Server Actions, React Testing Library
+globs: "**/*.{test,spec}.{ts,tsx}", "e2e/**/*.ts"
 alwaysApply: false
 ---
 
@@ -67,6 +67,15 @@ const { myAction } = await import("./my-action");
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 ```
+
+## E2E (Playwright)
+
+- `playwright.config.ts`: baseURL `http://localhost:3000`, webServer para Next.js e NestJS API
+- `e2e/auth.setup.ts`: login e persistência do storageState para testes autenticados
+- `e2e/auth.spec.ts`: redirecionamentos, login, registro (contexto guest)
+- `e2e/dashboard.spec.ts`: rotas protegidas (contexto autenticado)
+- Pré-requisito: PostgreSQL, Redis, seed (admin@example.com / password123)
+- Rodar: `npm run test:e2e` | `npm run test:e2e:ui` | `npm run test:e2e:headed`
 
 ## Configuração
 
