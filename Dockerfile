@@ -28,28 +28,24 @@ RUN pnpm prune --prod
 # ============================================
 FROM node:20-alpine
 
-# Install pnpm for production (lightweight)
-RUN corepack enable && corepack prepare pnpm@latest --activate
+# Install pnpm for production (lightweight) corepack substitui instalação global do pnpm
+RUN corepack enable && corepack prepare pnpm@9.15.0 --activate
+
+# Non-root user: create group/user with explicit UID/GID before copying
+# (avoids non-deterministic IDs and enables COPY --chown)
+RUN addgroup -g 1001 -S nodejs && \
+    adduser -S nestjs -u 1001 -G nodejs
 
 WORKDIR /usr/src/app
 
-# Copy production artifacts from build stage
-COPY --from=build /usr/src/app/package.json ./
-COPY --from=build /usr/src/app/pnpm-lock.yaml ./
-COPY --from=build /usr/src/app/node_modules ./node_modules
-COPY --from=build /usr/src/app/dist ./dist
-
-# Non-root user for security (NestJS best practice: devops)
-RUN addgroup -g 1001 -S nodejs && \
-    adduser -S nestjs -u 1001 -G nodejs && \
-    chown -R nestjs:nodejs /usr/src/app
+# Copy production artifacts with correct ownership (no chown layer needed)
+COPY --from=build --chown=nestjs:nodejs /usr/src/app/package.json ./
+COPY --from=build --chown=nestjs:nodejs /usr/src/app/pnpm-lock.yaml ./
+COPY --from=build --chown=nestjs:nodejs /usr/src/app/node_modules ./node_modules
+COPY --from=build --chown=nestjs:nodejs /usr/src/app/dist ./dist
 
 USER nestjs
 
-EXPOSE 3000
-
-# Health check (busybox wget --spider only checks availability)
-HEALTHCHECK --interval=30s --timeout=3s --start-period=15s --retries=3 \
-    CMD wget -q --spider http://127.0.0.1:3000/metrics || exit 1
+EXPOSE 3001
 
 CMD ["pnpm", "run", "start:prod"]

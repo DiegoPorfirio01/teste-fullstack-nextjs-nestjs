@@ -1,4 +1,42 @@
+name: teste-api
+
 services:
+  # ============================================
+  # PostgreSQL
+  # ============================================
+  postgres:
+    image: postgres:17-alpine
+    container_name: postgres
+    restart: unless-stopped
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: teste_api
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+      start_period: 10s
+    networks:
+      - observability
+
+  # ============================================
+  # Redis
+  # ============================================
+  redis:
+    image: redis:7-alpine
+    container_name: redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    networks:
+      - observability
+
   # ============================================
   # NestJS API
   # ============================================
@@ -9,16 +47,21 @@ services:
     container_name: teste-api
     restart: unless-stopped
     ports:
-      - "3000:3000"
-    environment:
-      NODE_ENV: production
-      PORT: 3000
+      - "3001:3001"
+    env_file:
+      - .env
     healthcheck:
-      test: ["CMD", "wget", "-q", "--spider", "http://127.0.0.1:3000/metrics"]
+      test: ["CMD", "wget", "-q", "--spider", "http://127.0.0.1:3001/v1/metrics"]
       interval: 30s
       timeout: 3s
       retries: 3
       start_period: 10s
+    command: ["node", "-r", "./dist/src/instrumentation.js", "dist/src/main.js"]
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_started
     networks:
       - observability
 
@@ -48,6 +91,24 @@ services:
         condition: service_healthy
 
   # ============================================
+  # Grafana Tempo – tracing (OpenTelemetry OTLP)
+  # ============================================
+  tempo:
+    image: grafana/tempo:2.4.0
+    container_name: tempo
+    restart: unless-stopped
+    ports:
+      - "3200:3200"
+      - "4317:4317"
+      - "4318:4318"
+    command: ["-config.file=/etc/tempo/tempo.yaml"]
+    volumes:
+      - ./observability/tempo/tempo.yaml:/etc/tempo/tempo.yaml:ro
+      - tempo_data:/var/tempo
+    networks:
+      - observability
+
+  # ============================================
   # Grafana – dashboards e visualização
   # ============================================
   grafana:
@@ -55,14 +116,14 @@ services:
     container_name: grafana
     restart: unless-stopped
     ports:
-      - "3001:3000"
+      - "3002:3000"
     environment:
       GF_SECURITY_ADMIN_USER: admin
       GF_SECURITY_ADMIN_PASSWORD: admin
       GF_USERS_ALLOW_SIGN_UP: "false"
-      GF_SERVER_ROOT_URL: http://localhost:3001
+      GF_SERVER_ROOT_URL: http://localhost:3002
       GF_INSTALL_PLUGINS: ""
-      # Provisioning automático do datasource
+      # Provisioning: datasources e dashboards via YAML (IaC)
       GF_PATHS_PROVISIONING: /etc/grafana/provisioning
     volumes:
       - ./observability/grafana/provisioning:/etc/grafana/provisioning:ro
@@ -71,10 +132,13 @@ services:
       - observability
     depends_on:
       - prometheus
+      - tempo
 
 volumes:
+  postgres_data:
   prometheus_data:
   grafana_data:
+  tempo_data:
 
 networks:
   observability:
