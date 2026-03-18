@@ -39,7 +39,10 @@ export function BuyCreditsSheet({
           </SheetDescription>
         </SheetHeader>
         <div className="mt-6 p-6 bg-background">
-          <FormBilling defaultPackageId={defaultPackageId} />
+          <FormBilling
+            defaultPackageId={defaultPackageId}
+            onSuccess={() => setOpen(false)}
+          />
         </div>
       </SheetContent>
     </Sheet>

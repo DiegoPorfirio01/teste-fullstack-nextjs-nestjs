@@ -18,8 +18,10 @@ import { CreditCardIcon } from "lucide-react"
 
 export function FormBilling({
   defaultPackageId,
+  onSuccess,
 }: {
   defaultPackageId?: string
+  onSuccess?: () => void
 }) {
   const [state, formAction, isPending] = useActionState<
     BuyCreditsState | undefined,
@@ -29,8 +31,9 @@ export function FormBilling({
   useEffect(() => {
     if (state?.success) {
       toast.success("Créditos comprados com sucesso!")
+      onSuccess?.()
     }
-  }, [state?.success])
+  }, [state?.success, onSuccess])
 
   return (
     <form action={formAction}>
