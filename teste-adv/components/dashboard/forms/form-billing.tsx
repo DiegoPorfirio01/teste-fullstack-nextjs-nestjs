@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect } from "react"
+import { useEffect, useRef } from "react"
 import { useActionState } from "react"
 import { toast } from "sonner"
 import { Button } from "@/components/ui/button"
@@ -28,12 +28,14 @@ export function FormBilling({
     FormData
   >(buyCreditsAction, undefined)
 
+  const onSuccessRef = useRef(onSuccess)
+  onSuccessRef.current = onSuccess
   useEffect(() => {
     if (state?.success) {
       toast.success("Créditos comprados com sucesso!")
-      onSuccess?.()
+      onSuccessRef.current?.()
     }
-  }, [state?.success, onSuccess])
+  }, [state?.success])
 
   return (
     <form action={formAction}>
