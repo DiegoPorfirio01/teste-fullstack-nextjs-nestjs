@@ -6,10 +6,7 @@ type LogAttributes = Record<string, string | number | boolean>;
  * Sets per-request isolation scope attributes and logs the start of a server action.
  * Uses getIsolationScope to avoid cross-request attribute leakage.
  */
-export function logActionStart(
-  action: string,
-  attrs?: LogAttributes,
-): void {
+export function logActionStart(action: string, attrs?: LogAttributes): void {
   Sentry.getIsolationScope().setAttributes({ action, ...attrs });
   Sentry.logger.info(Sentry.logger.fmt`Action ${action} started`, attrs);
 }
@@ -18,10 +15,7 @@ export function logActionStart(
  * Logs a successful server action with optional result attributes.
  * Follows the "wide event" pattern — one log with all relevant context.
  */
-export function logActionSuccess(
-  action: string,
-  attrs?: LogAttributes,
-): void {
+export function logActionSuccess(action: string, attrs?: LogAttributes): void {
   Sentry.logger.info(Sentry.logger.fmt`Action ${action} succeeded`, attrs);
 }
 

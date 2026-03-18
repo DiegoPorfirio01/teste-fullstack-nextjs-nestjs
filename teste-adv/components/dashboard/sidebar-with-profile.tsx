@@ -8,7 +8,8 @@ export async function SidebarWithProfile() {
       ? {
           name: result.data.fullName,
           email: result.data.email,
-          avatar: result.data.avatarUrl ?? 'https://github.com/diegoporfirio01.png',
+          avatar:
+            result.data.avatarUrl ?? 'https://github.com/diegoporfirio01.png',
         }
       : {
           name: 'Usuário',

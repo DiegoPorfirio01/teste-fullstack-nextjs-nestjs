@@ -197,41 +197,45 @@ pnpm dlx shadcn@latest docs <component>
 
 Sentry integrado via `@sentry/nextjs` com `withSentryConfig` no `next.config.ts`, cobrindo os **3 runtimes** do Next.js:
 
-| Runtime | Arquivo de config | DSN env var |
-|---|---|---|
+| Runtime          | Arquivo de config           | DSN env var              |
+| ---------------- | --------------------------- | ------------------------ |
 | Browser (client) | `instrumentation-client.ts` | `NEXT_PUBLIC_SENTRY_DSN` |
-| Node.js (server) | `sentry.server.config.ts` | `SENTRY_DSN` |
-| Edge | `sentry.edge.config.ts` | `SENTRY_DSN` |
+| Node.js (server) | `sentry.server.config.ts`   | `SENTRY_DSN`             |
+| Edge             | `sentry.edge.config.ts`     | `SENTRY_DSN`             |
 
 O `instrumentation.ts` carrega o config correto conforme `NEXT_RUNTIME` e exporta `onRequestError` para captura automática de erros server-side.
 
 ### Features habilitadas
 
-| Recurso | Configuração |
-|---|---|
-| Error monitoring | `captureException` em error boundaries + `onRequestError` no server |
-| Tracing | `tracesSampleRate` (100% dev, 10% prod) |
-| Session Replay | `replayIntegration()` (10% normal, 100% com erro) |
-| Source maps | `widenClientFileUpload: true` |
-| Ad-blocker bypass | `tunnelRoute: "/monitoring"` |
-| Logs estruturados | `enableLogs: true` nos 3 runtimes |
-| Console capture | `consoleLoggingIntegration` captura `console.warn`/`console.error` no browser |
-| Identificação | `Sentry.setUser()` após login/register, `null` no logout |
+| Recurso           | Configuração                                                                  |
+| ----------------- | ----------------------------------------------------------------------------- |
+| Error monitoring  | `captureException` em error boundaries + `onRequestError` no server           |
+| Tracing           | `tracesSampleRate` (100% dev, 10% prod)                                       |
+| Session Replay    | `replayIntegration()` (10% normal, 100% com erro)                             |
+| Source maps       | `widenClientFileUpload: true`                                                 |
+| Ad-blocker bypass | `tunnelRoute: "/monitoring"`                                                  |
+| Logs estruturados | `enableLogs: true` nos 3 runtimes                                             |
+| Console capture   | `consoleLoggingIntegration` captura `console.warn`/`console.error` no browser |
+| Identificação     | `Sentry.setUser()` após login/register, `null` no logout                      |
 
 ### Logs estruturados nas Server Actions
 
 Todas as server actions usam `lib/action-logger.ts` que integra `Sentry.logger.*` com `getIsolationScope()` para logs per-request sem vazamento entre requests:
 
 ```ts
-import { logActionStart, logActionSuccess, logActionError } from "@/lib/action-logger";
+import {
+  logActionStart,
+  logActionSuccess,
+  logActionError,
+} from '@/lib/action-logger';
 
-logActionStart("transferAction", { receiverEmail, amount });
+logActionStart('transferAction', { receiverEmail, amount });
 try {
   // ... lógica da action
-  logActionSuccess("transferAction", { receiverEmail, amount });
+  logActionSuccess('transferAction', { receiverEmail, amount });
 } catch (err) {
   rethrowNavigationError(err);
-  logActionError("transferAction", err, { receiverEmail, amount });
+  logActionError('transferAction', err, { receiverEmail, amount });
   // logActionError também chama captureException (erro aparece em Issues E Logs)
 }
 ```
@@ -324,15 +328,15 @@ Rules são arquivos `.mdc` que o Cursor carrega automaticamente. Cada rule tem u
 
 > _"If there are common formatting patterns that you want to make sure Cursor adheres to, consider auto-attaching rules based on glob patterns."_
 
-| Rule                   | Glob / Escopo                                          | Propósito                                             |
-| ---------------------- | ------------------------------------------------------ | ----------------------------------------------------- |
-| `project-overview.mdc` | `alwaysApply: true`                                    | Stack, estrutura de pastas, convenções gerais         |
-| `nextjs-patterns.mdc`  | `app/**/*.{ts,tsx}`                                    | RSC, data fetching, Suspense, metadata, middleware    |
-| `server-actions.mdc`   | `actions/*.ts`                                         | Padrão de action (validação, logging, error handling) |
-| `shadcn-ui.mdc`        | `**/*.tsx`                                             | Componentes, forms, estilização, ícones               |
-| `testing.mdc`          | `**/*.{test,spec}.{ts,tsx}`                            | Vitest, mocking, convenções de teste                  |
-| `api-integration.mdc`  | `lib/server-fetch.ts`, `api-routes.ts`, `actions/*.ts` | serverFetch, rotas, auth flow                         |
-| `sentry-observability.mdc` | `instrumentation*.ts`, `sentry.*.ts`, `lib/action-logger.ts`, `actions/*.ts` | Sentry logs, 3 runtimes, action-logger, setUser |
+| Rule                       | Glob / Escopo                                                                | Propósito                                             |
+| -------------------------- | ---------------------------------------------------------------------------- | ----------------------------------------------------- |
+| `project-overview.mdc`     | `alwaysApply: true`                                                          | Stack, estrutura de pastas, convenções gerais         |
+| `nextjs-patterns.mdc`      | `app/**/*.{ts,tsx}`                                                          | RSC, data fetching, Suspense, metadata, middleware    |
+| `server-actions.mdc`       | `actions/*.ts`                                                               | Padrão de action (validação, logging, error handling) |
+| `shadcn-ui.mdc`            | `**/*.tsx`                                                                   | Componentes, forms, estilização, ícones               |
+| `testing.mdc`              | `**/*.{test,spec}.{ts,tsx}`                                                  | Vitest, mocking, convenções de teste                  |
+| `api-integration.mdc`      | `lib/server-fetch.ts`, `api-routes.ts`, `actions/*.ts`                       | serverFetch, rotas, auth flow                         |
+| `sentry-observability.mdc` | `instrumentation*.ts`, `sentry.*.ts`, `lib/action-logger.ts`, `actions/*.ts` | Sentry logs, 3 runtimes, action-logger, setUser       |
 
 As rules com `alwaysApply: true` são carregadas em toda sessão. As demais são **auto-attached** quando arquivos que correspondem ao glob estão abertos — por exemplo, `server-actions.mdc` só é ativada ao editar arquivos em `actions/`.
 
