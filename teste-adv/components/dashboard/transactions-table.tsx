@@ -38,13 +38,7 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip"
-
-const REVERT_WINDOW_MS = 10 * 60 * 1000 // 10 minutos
-
-function isWithinRevertWindow(createdAt: string): boolean {
-  const created = new Date(createdAt).getTime()
-  return Date.now() - created <= REVERT_WINDOW_MS
-}
+import { isWithinRevertWindow } from "@/lib/utils"
 
 interface TransactionsTableProps {
   transactions: ITransaction[]
