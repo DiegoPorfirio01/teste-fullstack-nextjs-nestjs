@@ -5,7 +5,7 @@ import {
   TransactionStatus,
   TransactionTabFilter,
 } from '@/enums';
-import { useCallback, useMemo, useState } from 'react';
+import { useActionState, useCallback, useEffect, useMemo, useState } from 'react';
 import {
   Card,
   CardContent,
@@ -38,9 +38,12 @@ import {
   HistoryIcon,
   SearchIcon,
 } from 'lucide-react';
-import type { ITransaction } from '@/types';
+import type { ITransaction, ReverseState } from '@/types';
 import { formatCurrency, formatDate } from '@/lib/formatters';
 import { TransactionsTable } from './transactions-table';
+import { reverseAction } from '@/actions/transactions';
+import { showErrorToast, showSuccessToast } from '@/lib/toast';
+import { TOAST_MESSAGES } from '@/constants/toast-messages';
 
 function filterBySearch(list: ITransaction[], search: string): ITransaction[] {
   if (!search.trim()) return list;
@@ -66,6 +69,24 @@ interface TransactionsHistorySectionProps {
 export function TransactionsHistorySection({
   transactions,
 }: TransactionsHistorySectionProps) {
+  const [reverseState, reverseFormAction, reverseIsPending] = useActionState<
+    ReverseState | undefined,
+    FormData
+  >(reverseAction, undefined);
+
+  useEffect(() => {
+    if (reverseState?.success) {
+      showSuccessToast(TOAST_MESSAGES.REVERT_SUCCESS);
+    }
+    if (reverseState?.error) {
+      showErrorToast(reverseState.error);
+    }
+  }, [
+    reverseState?.success,
+    reverseState?.error,
+    reverseState?.transactionId,
+  ]);
+
   const [search, setSearch] = useState('');
   const [activeTab, setActiveTab] = useState<TransactionTabFilter>(
     TransactionTabFilter.SENT,
@@ -179,6 +200,9 @@ export function TransactionsHistorySection({
                 transactions={paginatedList}
                 formatDate={formatDate}
                 formatAmount={formatCurrency}
+                reverseFormAction={reverseFormAction}
+                reverseIsPending={reverseIsPending}
+                reverseState={reverseState}
               />
             </div>
           </TabsContent>
@@ -192,6 +216,9 @@ export function TransactionsHistorySection({
                 transactions={paginatedList}
                 formatDate={formatDate}
                 formatAmount={formatCurrency}
+                reverseFormAction={reverseFormAction}
+                reverseIsPending={reverseIsPending}
+                reverseState={reverseState}
               />
             </div>
           </TabsContent>
@@ -205,6 +232,9 @@ export function TransactionsHistorySection({
                 transactions={paginatedList}
                 formatDate={formatDate}
                 formatAmount={formatCurrency}
+                reverseFormAction={reverseFormAction}
+                reverseIsPending={reverseIsPending}
+                reverseState={reverseState}
               />
             </div>
           </TabsContent>

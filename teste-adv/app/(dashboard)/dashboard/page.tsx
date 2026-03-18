@@ -5,6 +5,8 @@ import { ActionError } from '@/components/dashboard/action-error';
 import { ChartTransactions } from '@/components/dashboard/chart-transactions';
 import { DashboardCards } from '@/components/dashboard/dashboard-cards';
 import { TransactionsHistorySection } from '@/components/dashboard/transactions-history-section';
+import type { ITransaction } from '@/types';
+import { extractList } from '@/lib/api-response';
 
 export const metadata: Metadata = {
   title: 'Painel',
@@ -17,10 +19,9 @@ export default async function DashboardPage() {
     getTransactions(),
   ]);
 
-  const credits: number =
-    'data' in creditsResult ? (creditsResult.data ?? 0) : 0;
-  const transactions =
-    'data' in transactionsResult ? (transactionsResult.data ?? []) : [];
+  const credits: number = creditsResult.data ?? 0;
+  const transactions: ITransaction[] =
+    extractList<ITransaction>(transactionsResult);
 
   return (
     <div className="flex flex-col gap-4 py-4 md:gap-6 md:py-6">

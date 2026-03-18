@@ -15,6 +15,7 @@ import {
   logActionSuccess,
   logActionError,
 } from '@/lib/action-logger';
+import { EMAIL_REGEX, MAX_AMOUNT, REVERT_WINDOW_MS } from '@/constants';
 import {
   TransactionDirection,
   TransactionStatus,
@@ -28,29 +29,20 @@ import type {
   TransferState,
 } from '@/types';
 
-const REVERT_WINDOW_MS = 10 * 60 * 1000; // 10 minutos
-const MAX_AMOUNT = 1_000_000;
-
-/** Valida formato de e-mail */
-const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-
-// ---- Mapeamento de transação (API → frontend) ----
-
 /** Formato bruto da API (NestJS Transaction) */
 interface RawTransaction {
-  id: unknown;
-  type?: string;
-  amount?: unknown;
-  senderId?: string | null;
+  id: string;
+  type: TransactionType;
+  amount: number;
+  senderId: string;
   receiverId?: string | null;
-  status?: string;
-  createdAt?: string | Date;
-  direction?: string;
-  canReverse?: boolean;
-  counterpartEmail?: string;
-  counterpart_email?: string;
   sender?: { email?: string } | null;
   receiver?: { email?: string } | null;
+  status: TransactionStatus;
+  createdAt: Date | string;
+  direction: string;
+  canReverse: boolean;
+  counterpartEmail?: string;
 }
 
 function resolveDirection(
@@ -69,13 +61,8 @@ function resolveDirection(
 function resolveCanReverse(raw: RawTransaction, userId: string): boolean {
   if (typeof raw.canReverse === 'boolean') return raw.canReverse;
 
-  const createdAt = raw.createdAt;
-  const createdTime =
-    typeof createdAt === 'string'
-      ? new Date(createdAt).getTime()
-      : createdAt instanceof Date
-        ? createdAt.getTime()
-        : 0;
+  const createdTime = new Date(raw.createdAt).getTime();
+
   const elapsed = Date.now() - createdTime;
   const withinWindow = elapsed <= REVERT_WINDOW_MS;
 
@@ -88,7 +75,7 @@ function resolveCanReverse(raw: RawTransaction, userId: string): boolean {
 }
 
 function resolveCounterpartEmail(raw: RawTransaction): string | undefined {
-  const fromField = raw.counterpartEmail ?? raw.counterpart_email;
+  const fromField = raw.counterpartEmail;
   if (fromField) return fromField;
 
   const direction = raw.direction as string | undefined;
@@ -103,23 +90,15 @@ function mapRawToTransaction(
   raw: RawTransaction,
   userId: string,
 ): ITransaction {
-  const createdAt = raw.createdAt;
-  const isoDate =
-    typeof createdAt === 'string'
-      ? createdAt
-      : createdAt instanceof Date
-        ? createdAt.toISOString()
-        : new Date().toISOString();
-
   return {
-    id: String(raw.id),
-    type: (raw.type as ITransaction['type']) ?? TransactionType.TRANSFER,
-    amount: Number(raw.amount ?? 0),
+    id: raw.id,
+    type: raw.type,
+    amount: raw.amount,
     senderId: raw.senderId ?? undefined,
     receiverId: raw.receiverId ?? undefined,
-    status:
-      (raw.status as ITransaction['status']) ?? TransactionStatus.COMPLETED,
-    createdAt: isoDate,
+    status: raw.status,
+    // Armazena como ISO (com hora) para permitir cálculos (10min) no frontend.
+    createdAt: new Date(raw.createdAt).toISOString(),
     direction: resolveDirection(raw, userId),
     canReverse: resolveCanReverse(raw, userId),
     counterpartEmail: resolveCounterpartEmail(raw),
@@ -216,18 +195,19 @@ export async function reverseAction(
     const data = (await res.json()) as Record<string, unknown>;
     if (!res.ok) {
       const msg = getApiErrorMessage(data, 'Falha ao reverter transação');
-      return { error: msg };
+      return { error: msg, transactionId };
     }
 
     revalidatePath('/transactions');
     revalidatePath('/dashboard');
     logActionSuccess('reverseAction', { transactionId });
-    return { success: true };
+    return { success: true, transactionId };
   } catch (err) {
     rethrowNavigationError(err);
     logActionError('reverseAction', err, { transactionId });
     return {
       error: toUserFriendlyMessage(err, 'Erro inesperado ao reverter'),
+      transactionId,
     };
   }
 }
@@ -287,21 +267,13 @@ export async function getTransactions(): Promise<ActionResult<ITransaction[]>> {
       return { error: msg };
     }
 
-    const userId = profileResult.data?.id ?? undefined;
+    const userId = profileResult.data!.id!;
 
     const data = await transactionsRes.json();
     const rawList = extractList<RawTransaction>(data);
 
-    if (!userId) {
-      return {
-        data: rawList.map((raw) =>
-          mapRawToTransaction(raw as RawTransaction, ''),
-        ) as ITransaction[],
-      };
-    }
-
     const transactions = rawList.map((raw) =>
-      mapRawToTransaction(raw as RawTransaction, userId),
+      mapRawToTransaction(raw, userId!),
     );
     return { data: transactions };
   } catch (err) {

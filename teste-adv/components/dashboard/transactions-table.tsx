@@ -1,12 +1,10 @@
 'use client';
 
-import { useActionState } from 'react';
 import {
   TransactionDirection,
   TransactionStatus,
   TransactionType,
 } from '@/enums';
-import { reverseAction } from '@/actions/transactions';
 import { Button } from '@/components/ui/button';
 import {
   Table,
@@ -16,7 +14,6 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
-import { Badge } from '@/components/ui/badge';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -29,56 +26,55 @@ import {
   AlertDialogTrigger,
 } from '@/components/ui/alert-dialog';
 import { Undo2Icon } from 'lucide-react';
-import { cn } from '@/lib/utils';
-import type { ITransaction } from '@/types';
+import { cn, isWithinRevertWindow } from '@/lib/utils';
+import { TypeBadge } from '@/components/dashboard/transaction-type-badge';
+import type { ReverseState, TransactionsTableProps } from '@/types';
 import {
   Tooltip,
   TooltipContent,
   TooltipTrigger,
 } from '@/components/ui/tooltip';
-import { isWithinRevertWindow } from '@/lib/utils';
-
-interface TransactionsTableProps {
-  transactions: ITransaction[];
-  formatDate: (iso: string) => string;
-  formatAmount: (amount: number) => string;
-}
-
-function TypeBadge({ type }: { type: ITransaction['type'] }) {
-  return (
-    <Badge variant={type === TransactionType.DEPOSIT ? 'secondary' : 'outline'}>
-      {type === TransactionType.DEPOSIT ? 'Depósito' : 'Transferência'}
-    </Badge>
-  );
-}
 
 function RevertButton({
   transactionId,
   disabled,
+  disabledReason,
+  hideWhenDisabled,
+  reverseFormAction,
+  reverseIsPending,
+  reverseState,
 }: {
   transactionId: string;
   disabled?: boolean;
+  disabledReason?: string;
+  hideWhenDisabled?: boolean;
+  reverseFormAction: TransactionsTableProps['reverseFormAction'];
+  reverseIsPending: boolean;
+  reverseState: ReverseState | undefined;
 }) {
-  const [state, formAction, isPending] = useActionState(
-    reverseAction,
-    undefined,
-  );
-
   const trigger = (
-    <Button variant="outline" size="sm" disabled={disabled}>
+    <Button
+      variant="outline"
+      size="sm"
+      disabled={disabled || reverseIsPending}
+    >
       <Undo2Icon data-icon="inline-start" />
       Reverter
     </Button>
   );
 
   if (disabled) {
+    if (hideWhenDisabled) {
+      return <span className="text-muted-foreground text-sm">—</span>;
+    }
     return (
       <Tooltip>
         <TooltipTrigger asChild>
           <span className="inline-flex cursor-not-allowed">{trigger}</span>
         </TooltipTrigger>
         <TooltipContent>
-          Só é possível reverter dentro de 10 minutos após a transferência.
+          {disabledReason ??
+            'Só é possível reverter dentro de 10 minutos após a transferência.'}
         </TooltipContent>
       </Tooltip>
     );
@@ -88,7 +84,7 @@ function RevertButton({
     <AlertDialog>
       <AlertDialogTrigger asChild>{trigger}</AlertDialogTrigger>
       <AlertDialogContent>
-        <form action={formAction}>
+        <form action={reverseFormAction}>
           <input type="hidden" name="transactionId" value={transactionId} />
           <AlertDialogHeader>
             <AlertDialogTitle>Reverter transferência?</AlertDialogTitle>
@@ -97,13 +93,16 @@ function RevertButton({
               reverter dentro de 10 minutos após a transferência.
             </AlertDialogDescription>
           </AlertDialogHeader>
-          {state?.error && (
-            <p className="text-sm text-destructive">{state.error}</p>
-          )}
+          {reverseState?.transactionId === transactionId &&
+            reverseState?.error && (
+              <p className="text-sm text-destructive">{reverseState.error}</p>
+            )}
           <AlertDialogFooter>
-            <AlertDialogCancel disabled={isPending}>Cancelar</AlertDialogCancel>
-            <AlertDialogAction type="submit" disabled={isPending}>
-              {isPending ? 'Revertendo…' : 'Confirmar'}
+            <AlertDialogCancel disabled={reverseIsPending}>
+              Cancelar
+            </AlertDialogCancel>
+            <AlertDialogAction type="submit" disabled={reverseIsPending}>
+              {reverseIsPending ? 'Revertendo…' : 'Confirmar'}
             </AlertDialogAction>
           </AlertDialogFooter>
         </form>
@@ -116,6 +115,9 @@ export function TransactionsTable({
   transactions,
   formatDate,
   formatAmount,
+  reverseFormAction,
+  reverseIsPending,
+  reverseState,
 }: TransactionsTableProps) {
   if (transactions.length === 0) {
     return (
@@ -167,11 +169,17 @@ export function TransactionsTable({
             </TableCell>
             <TableCell className="text-right">
               {tx.direction === TransactionDirection.SENT &&
-              tx.type === TransactionType.TRANSFER &&
-              tx.status === TransactionStatus.COMPLETED ? (
+              tx.type === TransactionType.TRANSFER ? (
                 <RevertButton
                   transactionId={tx.id}
-                  disabled={!isWithinRevertWindow(tx.createdAt)}
+                  disabled={
+                    !tx.canReverse || !isWithinRevertWindow(tx.createdAt)
+                  }
+                  hideWhenDisabled={tx.status !== TransactionStatus.COMPLETED}
+                  disabledReason={undefined}
+                  reverseFormAction={reverseFormAction}
+                  reverseIsPending={reverseIsPending}
+                  reverseState={reverseState}
                 />
               ) : (
                 <span className="text-muted-foreground text-sm">—</span>
