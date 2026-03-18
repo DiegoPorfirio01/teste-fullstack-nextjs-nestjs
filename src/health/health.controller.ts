@@ -1,44 +1,39 @@
 import { Controller, Get } from '@nestjs/common';
 import { SkipThrottle } from '@nestjs/throttler';
+import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import {
-  ApiOperation,
-  ApiResponse,
-  ApiTags,
-} from '@nestjs/swagger';
+  HealthCheck,
+  HealthCheckService,
+  PrismaHealthIndicator,
+} from '@nestjs/terminus';
 import { Public } from '../guards/decorators';
-import { HealthService } from './health.service';
+import { PrismaService } from '../prisma/prisma.service';
+import { RedisHealthIndicator } from './redis.health-indicator';
 
 @ApiTags('health')
 @SkipThrottle()
 @Public()
-@Controller('health')
+@Controller({ path: 'health', version: '1' })
 export class HealthController {
-  constructor(private readonly healthService: HealthService) {}
+  constructor(
+    private readonly health: HealthCheckService,
+    private readonly prisma: PrismaHealthIndicator,
+    private readonly redis: RedisHealthIndicator,
+    private readonly prismaService: PrismaService,
+  ) {}
 
   @Get()
+  @HealthCheck()
   @ApiOperation({ summary: 'Health check da API' })
   @ApiResponse({ status: 200, description: 'API está saudável' })
+  @ApiResponse({
+    status: 503,
+    description: 'API ou dependências indisponíveis',
+  })
   getHealth() {
-    return {
-      status: 'ok',
-      timestamp: new Date().toISOString(),
-      uptime: process.uptime(),
-      memory: process.memoryUsage(),
-      version: process.env.npm_package_version || '1.0.0',
-    };
-  }
-
-  @Get('ready')
-  @ApiOperation({ summary: 'Readiness probe (Kubernetes)' })
-  @ApiResponse({ status: 200, description: 'API pronta para receber tráfego' })
-  async getReady() {
-    return this.healthService.getReadyStatus();
-  }
-
-  @Get('live')
-  @ApiOperation({ summary: 'Liveness probe (Kubernetes)' })
-  @ApiResponse({ status: 200, description: 'API está viva' })
-  async getLive() {
-    return this.healthService.getLiveStatus();
+    return this.health.check([
+      () => this.prisma.pingCheck('db', this.prismaService),
+      () => this.redis.pingCheck('redis'),
+    ]);
   }
 }
