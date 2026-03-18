@@ -9,9 +9,6 @@ import { Observable } from 'rxjs';
 import type { JwtUser } from '../auth/jwt.strategy';
 import { IS_PUBLIC_KEY } from './decorators';
 
-/** Paths from third-party modules that can't use @Public() */
-const UNAUTHENTICATED_PATHS = ['/metrics'] as const;
-
 @Injectable()
 export class JwtAuthGuard extends AuthGuard('jwt') {
   constructor(private reflector: Reflector) {
@@ -27,12 +24,6 @@ export class JwtAuthGuard extends AuthGuard('jwt') {
         context.getClass(),
       ])
     ) {
-      return true;
-    }
-
-    const req = context.switchToHttp().getRequest<{ url?: string }>();
-    const path = req?.url?.split('?')[0] ?? '';
-    if (UNAUTHENTICATED_PATHS.some((p) => path.startsWith(p))) {
       return true;
     }
 

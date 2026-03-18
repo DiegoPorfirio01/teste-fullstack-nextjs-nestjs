@@ -1,4 +1,4 @@
-import { ExecutionContext, Injectable } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { ThrottlerGuard } from '@nestjs/throttler';
 
 @Injectable()
@@ -10,14 +10,13 @@ export class CustomThrottlerGuard extends ThrottlerGuard {
    * Optional: when req.user is available (e.g. after JwtAuthGuard), you can use
    * `req.user?.id ?? this.getAnonymousTracker(req)` for per-user limits.
    */
-  protected async getTracker(
-    req: Record<string, unknown>,
-    _context?: ExecutionContext,
-  ): Promise<string> {
-    const ip = (req as { ip?: string }).ip ?? 'unknown';
+  protected getTracker(req: Record<string, unknown>): Promise<string> {
+    const ip = typeof req.ip === 'string' ? req.ip : 'unknown';
+    const { headers } = req;
     const userAgent =
-      (req as { headers?: Record<string, string> }).headers?.['user-agent'] ??
-      '';
-    return `${ip}-${userAgent}`;
+      headers && typeof headers === 'object' && 'user-agent' in headers
+        ? String(headers['user-agent'])
+        : '';
+    return Promise.resolve(`${ip}-${userAgent}`);
   }
 }

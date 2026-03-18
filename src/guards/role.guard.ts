@@ -21,17 +21,19 @@ export class RoleGuard implements CanActivate {
       return true;
     }
 
-    const { user } = context.switchToHttp().getRequest();
+    const { user } = context
+      .switchToHttp()
+      .getRequest<{ user?: { role?: string } }>();
 
     if (!user || !user.role) {
-      throw new UnauthorizedException('User not authorized');
+      throw new UnauthorizedException('Usuário não autorizado');
     }
 
     const hasRole = requiredRoles.includes(user.role);
 
     if (!hasRole) {
       throw new UnauthorizedException(
-        `User does not have the required role: ${requiredRoles.join(', ')} to access this resource`,
+        `Usuário não possui a função necessária: ${requiredRoles.join(', ')} para acessar este recurso`,
       );
     }
 
