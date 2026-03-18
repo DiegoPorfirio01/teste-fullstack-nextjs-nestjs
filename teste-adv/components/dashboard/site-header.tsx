@@ -1,6 +1,7 @@
 import { getWalletCredits } from '@/actions/wallet';
 import { SiteHeaderBreadcrumbs } from '@/components/dashboard/site-header-breadcrumbs';
 import { SidebarTrigger } from '@/components/ui/sidebar';
+import { ThemeToggle } from '@/components/ui/theme-toggle';
 import { CreditCardIcon } from 'lucide-react';
 import { BuyCreditsSheet } from './buy-credits-sheet';
 import { Button } from '../ui/button';
@@ -17,6 +18,7 @@ export async function SiteHeader() {
           <SiteHeaderBreadcrumbs />
         </div>
         <div className="flex items-center gap-2">
+          <ThemeToggle />
           <BuyCreditsSheet creditsRemaining={creditsRemaining ?? 0}>
             <Button variant="outline" size="sm" className="cursor-pointer">
               <CreditCardIcon data-icon="inline-start" />
