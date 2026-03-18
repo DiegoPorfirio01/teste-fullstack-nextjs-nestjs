@@ -1,12 +1,22 @@
 // lib/server-fetch.ts
 import { cookies } from "next/headers";
+import { redirect } from "next/navigation";
+import { AUTH_COOKIE_NAME } from "@/constants";
+
 type FetchOptions = RequestInit & {
-  /** Se true, inclui cookies na requisição (default: true) */
+  /** Se true, inclui Authorization Bearer na requisição (default: true) */
   withCredentials?: boolean;
 };
+
 /**
- * Fetch que automaticamente repassa os cookies do request para chamadas server-side.
- * Use em Server Components e Server Actions para requisições autenticadas.
+ * Fetch que automaticamente inclui Authorization Bearer para chamadas server-side.
+ * Lê o token do cookie de auth (AUTH_COOKIE_NAME) e envia como Bearer.
+ * A API NestJS usa Bearer auth, não cookies — não repassamos o header Cookie.
+ *
+ * Em 401 (Unauthorized), redireciona para /auth/login automaticamente.
+ *
+ * Use em Server Components e Server Actions. Nunca leia o cookie de auth nem
+ * construa o header Authorization manualmente — isso é centralizado aqui.
  */
 export async function serverFetch(
   url: string | URL,
@@ -14,15 +24,21 @@ export async function serverFetch(
 ): Promise<Response> {
   const { withCredentials = true, headers = {}, ...rest } = options;
   const headersInit: HeadersInit = { ...headers };
+
   if (withCredentials) {
     const cookieStore = await cookies();
-    const cookieHeader = cookieStore.toString();
-    if (cookieHeader) {
-      (headersInit as Record<string, string>)["Cookie"] = cookieHeader;
+    const token = cookieStore.get(AUTH_COOKIE_NAME)?.value;
+    if (token) {
+      (headersInit as Record<string, string>)["Authorization"] =
+        `Bearer ${token}`;
     }
   }
-  return fetch(url, {
+
+  const res = await fetch(url, {
     ...rest,
     headers: headersInit,
   });
+
+  if (res.status === 401) redirect("/auth/login");
+  return res;
 }
