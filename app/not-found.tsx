@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import { BackButton } from "@/components/back-button";
+import { BackButton } from "@/components/ui/back-button"; 
 import Image from "next/image";
 import { Home } from "lucide-react";
 
@@ -21,9 +21,9 @@ export default function NotFound() {
         aria-hidden
       />
 
-      <div className="relative flex w-full max-w-lg flex-col items-center gap-8 text-center animate-in fade-in-0 duration-500">
+      <div className="relative flex w-full max-w-lg flex-col items-center gap-8 text-center">
         {/* Illustration */}
-        <div className="animate-in fade-in-0 slide-in-from-bottom-4 duration-700 delay-150">
+        <div>
           <Image
             src="/not-found.png"
             alt=""
@@ -35,7 +35,7 @@ export default function NotFound() {
         </div>
 
         {/* Content */}
-        <div className="space-y-3 animate-in fade-in-0 slide-in-from-bottom-3 duration-700 delay-300">
+        <div className="space-y-3">
           <p className="font-mono text-6xl font-bold tracking-tighter text-primary tabular-nums sm:text-8xl">
             404
           </p>
@@ -48,7 +48,7 @@ export default function NotFound() {
         </div>
 
         {/* Actions */}
-        <div className="flex flex-col gap-3 sm:flex-row animate-in fade-in-0 slide-in-from-bottom-3 duration-700 delay-500">
+        <div className="flex flex-col gap-3 sm:flex-row">
           <Button asChild variant="default" size="lg" className="gap-2">
             <Link href="/">
               <Home className="size-4" aria-hidden />

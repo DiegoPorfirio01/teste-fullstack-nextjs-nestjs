@@ -79,7 +79,15 @@ export default function GlobalError({
             >
               Tentar novamente
             </button>
-            <Link href="/dashboard" className="text-blue-500 hover:text-blue-600">
+            <Link
+              href="/dashboard"
+              style={{
+                color: "#3b82f6",
+                textDecoration: "none",
+                fontSize: "0.875rem",
+                fontWeight: 500,
+              }}
+            >
               Ir para o início
             </Link>
           </div>
