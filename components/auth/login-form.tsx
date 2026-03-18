@@ -13,7 +13,8 @@ import {
   FieldLabel,
   FieldSeparator,
 } from "@/components/ui/field";
-import { Input } from "@/components/ui/input";
+import { PasswordInput } from "@/components/ui/password-input"
+import { EmailInput } from "@/components/ui/email-input";
 import { loginAction } from "@/actions/auth";
 import type { LoginState } from "@/types";
 import Image from "next/image";
@@ -40,7 +41,7 @@ export function LoginForm({
               <div className="flex flex-col items-center gap-2 text-center">
                 <h1 className="text-2xl font-bold">Bem-vindo de volta</h1>
                 <p className="text-balance text-muted-foreground">
-                  Entre na sua conta Acme Inc
+                  Entre na sua conta
                 </p>
               </div>
 
@@ -52,10 +53,9 @@ export function LoginForm({
 
               <Field data-invalid={!!state?.fieldErrors?.email}>
                 <FieldLabel htmlFor="email">E-mail</FieldLabel>
-                <Input
+                <EmailInput
                   id="email"
                   name="email"
-                  type="email"
                   placeholder="m@example.com"
                   required
                   aria-invalid={!!state?.fieldErrors?.email}
@@ -66,15 +66,20 @@ export function LoginForm({
 
               <Field data-invalid={!!state?.fieldErrors?.password}>
                 <FieldLabel htmlFor="password">Senha</FieldLabel>
-                <Input
+                <PasswordInput
                   id="password"
                   name="password"
-                  type="password"
                   required
                   aria-invalid={!!state?.fieldErrors?.password}
                   defaultValue={state?.values?.password}
                 />
-                <FieldError errors={state?.fieldErrors?.password?.map((m: string) => ({ message: m })) ?? []} />
+                <FieldError
+                  errors={
+                    state?.fieldErrors?.password?.map((m: string) => ({
+                      message: m,
+                    })) ?? []
+                  }
+                />
               </Field>
 
               <Field>

@@ -12,7 +12,9 @@ import {
   FieldGroup,
   FieldLabel,
 } from "@/components/ui/field";
-import { Input } from "@/components/ui/input";
+import { PasswordInput } from "@/components/ui/password-input"
+import { NameInput } from "@/components/ui/name-input"
+import { EmailInput } from "@/components/ui/email-input";
 import { registerAction } from "@/actions/auth";
 import type { RegisterState } from "@/types";
 import Image from "next/image";
@@ -51,10 +53,9 @@ export function SignupForm({
 
               <Field data-invalid={!!state?.fieldErrors?.name}>
                 <FieldLabel htmlFor="name">Nome</FieldLabel>
-                <Input
+                <NameInput
                   id="name"
                   name="name"
-                  type="text"
                   required
                   aria-invalid={!!state?.fieldErrors?.name}
                   defaultValue={state?.values?.name}
@@ -64,10 +65,9 @@ export function SignupForm({
 
               <Field data-invalid={!!state?.fieldErrors?.email}>
                 <FieldLabel htmlFor="email">E-mail</FieldLabel>
-                <Input
+                <EmailInput
                   id="email"
                   name="email"
-                  type="email"
                   required
                   aria-invalid={!!state?.fieldErrors?.email}
                   defaultValue={state?.values?.email}
@@ -75,31 +75,50 @@ export function SignupForm({
                 <FieldError errors={state?.fieldErrors?.email?.map((m: string) => ({ message: m })) ?? []} />
               </Field>
 
-              <Field data-invalid={!!state?.fieldErrors?.password || !!state?.fieldErrors?.confirmPassword}>
+              <Field
+                data-invalid={
+                  !!state?.fieldErrors?.password ||
+                  !!state?.fieldErrors?.confirmPassword
+                }
+              >
                 <div className="grid grid-cols-2 gap-4">
                   <Field data-invalid={!!state?.fieldErrors?.password}>
                     <FieldLabel htmlFor="password">Senha</FieldLabel>
-                    <Input
+                    <PasswordInput
                       id="password"
                       name="password"
-                      type="password"
+                      autoComplete="new-password"
                       required
                       aria-invalid={!!state?.fieldErrors?.password}
                       defaultValue={state?.values?.password}
                     />
-                    <FieldError errors={state?.fieldErrors?.password?.map((m: string) => ({ message: m })) ?? []} />
+                    <FieldError
+                      errors={
+                        state?.fieldErrors?.password?.map((m: string) => ({
+                          message: m,
+                        })) ?? []
+                      }
+                    />
                   </Field>
                   <Field data-invalid={!!state?.fieldErrors?.confirmPassword}>
-                    <FieldLabel htmlFor="confirmPassword">Confirmar senha</FieldLabel>
-                    <Input
+                    <FieldLabel htmlFor="confirmPassword">
+                      Confirmar senha
+                    </FieldLabel>
+                    <PasswordInput
                       id="confirmPassword"
                       name="confirmPassword"
-                      type="password"
+                      autoComplete="new-password"
                       required
                       aria-invalid={!!state?.fieldErrors?.confirmPassword}
                       defaultValue={state?.values?.confirmPassword}
                     />
-                    <FieldError errors={state?.fieldErrors?.confirmPassword?.map((m: string) => ({ message: m })) ?? []} />
+                    <FieldError
+                      errors={
+                        state?.fieldErrors?.confirmPassword?.map((m: string) => ({
+                          message: m,
+                        })) ?? []
+                      }
+                    />
                   </Field>
                 </div>
               </Field>
