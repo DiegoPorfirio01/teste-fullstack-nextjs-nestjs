@@ -1,8 +1,6 @@
 "use client"
 
-import { useEffect } from "react"
 import { useActionState } from "react"
-import { toast } from "sonner"
 import {
   TransactionDirection,
   TransactionStatus,
@@ -62,12 +60,6 @@ function RevertButton({
   disabled?: boolean
 }) {
   const [state, formAction, isPending] = useActionState(reverseAction, undefined)
-
-  useEffect(() => {
-    if (state?.success) {
-      toast.success("Transferência revertida com sucesso!")
-    }
-  }, [state?.success])
 
   const trigger = (
     <Button variant="outline" size="sm" disabled={disabled}>
