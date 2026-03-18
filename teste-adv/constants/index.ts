@@ -1,7 +1,7 @@
 import { CoinsIcon, GemIcon, ZapIcon } from 'lucide-react';
 
 export const AUTH_COOKIE_NAME = 'auth-token';
-export const REVERT_WINDOW_MS = 10 * 60 * 1000; // 10 minutos
+export { REVERT_WINDOW_MS, MAX_AMOUNT, EMAIL_REGEX } from './transaction';
 
 /** Route path -> label for breadcrumbs and nav. Shared with sidebar. */
 export const ROUTE_LABELS: Record<string, string> = {

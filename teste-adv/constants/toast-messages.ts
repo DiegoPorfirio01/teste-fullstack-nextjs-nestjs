@@ -5,6 +5,7 @@
  */
 export const TOAST_MESSAGES = {
   TRANSFER_SUCCESS: 'Transferência realizada com sucesso!',
+  REVERT_SUCCESS: 'Reversão realizada com sucesso!',
   CREDITS_PURCHASED: 'Créditos comprados com sucesso!',
   PROFILE_UPDATED: 'Perfil atualizado com sucesso!',
   PASSWORD_UPDATED: 'Senha atualizada com sucesso!',

@@ -1,5 +1,6 @@
 import type { loginSchema, registerSchema } from '@/schemas/auth-form';
 import type z from 'zod';
+import type { ComponentPropsWithoutRef } from 'react';
 
 import type {
   TransactionDirection,
@@ -63,7 +64,11 @@ export type TransferState = {
   fieldErrors?: { receiverEmail?: string[]; amount?: string[] };
 };
 
-export type ReverseState = { error?: string; success?: boolean };
+export type ReverseState = {
+  error?: string;
+  success?: boolean;
+  transactionId?: string;
+};
 
 export type BuyCreditsState = {
   error?: string;
@@ -113,6 +118,15 @@ export interface ITransaction {
   direction: TransactionDirection;
   canReverse: boolean;
   counterpartEmail?: string;
+}
+
+export interface TransactionsTableProps {
+  transactions: ITransaction[];
+  formatDate: (iso: string) => string;
+  formatAmount: (amount: number) => string;
+  reverseFormAction: ComponentPropsWithoutRef<'form'>['action'];
+  reverseIsPending: boolean;
+  reverseState: ReverseState | undefined;
 }
 
 export interface IUserProfile {

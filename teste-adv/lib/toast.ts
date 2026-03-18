@@ -12,3 +12,11 @@ const DEFAULT_SUCCESS_DURATION = 5_000;
 export function showSuccessToast(message: string): void {
   toast.success(message, { duration: DEFAULT_SUCCESS_DURATION });
 }
+
+/**
+ * Exibe toast de erro padronizado.
+ * Mantém mesma duration da success pra consistência do UX.
+ */
+export function showErrorToast(message: string): void {
+  toast.error(message, { duration: DEFAULT_SUCCESS_DURATION });
+}
