@@ -1,40 +1,40 @@
-"use client"
+'use client';
 
-import { useEffect } from "react"
-import { useActionState } from "react"
-import { showSuccessToast } from "@/lib/toast"
-import { TOAST_MESSAGES } from "@/constants/toast-messages"
-import { Button } from "@/components/ui/button"
+import { useEffect } from 'react';
+import { useActionState } from 'react';
+import { showSuccessToast } from '@/lib/toast';
+import { TOAST_MESSAGES } from '@/constants/toast-messages';
+import { Button } from '@/components/ui/button';
 import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card"
+} from '@/components/ui/card';
 import {
   Field,
   FieldError,
   FieldGroup,
   FieldLabel,
   FieldSeparator,
-} from "@/components/ui/field"
-import { PasswordInput } from "@/components/ui/password-input"
-import { updatePasswordAction } from "@/actions/profile"
-import type { UpdatePasswordState } from "@/types"
-import { LockIcon } from "lucide-react"
+} from '@/components/ui/field';
+import { PasswordInput } from '@/components/ui/password-input';
+import { updatePasswordAction } from '@/actions/profile';
+import type { UpdatePasswordState } from '@/types';
+import { LockIcon } from 'lucide-react';
 
 export function FormPerfil() {
   const [state, formAction, isPending] = useActionState<
     UpdatePasswordState | undefined,
     FormData
-  >(updatePasswordAction, undefined)
+  >(updatePasswordAction, undefined);
 
   useEffect(() => {
     if (state?.success) {
-      showSuccessToast(TOAST_MESSAGES.PASSWORD_UPDATED)
+      showSuccessToast(TOAST_MESSAGES.PASSWORD_UPDATED);
     }
-  }, [state?.success])
+  }, [state?.success]);
 
   return (
     <Card className="overflow-hidden">
@@ -53,7 +53,7 @@ export function FormPerfil() {
       </CardHeader>
       <CardContent>
         <form
-          key={state?.values ? "has-values" : "initial"}
+          key={state?.values ? 'has-values' : 'initial'}
           action={formAction}
         >
           <FieldGroup className="gap-5">
@@ -128,7 +128,7 @@ export function FormPerfil() {
             <Field>
               <div className="flex justify-end">
                 <Button type="submit" disabled={isPending}>
-                  {isPending ? "Salvando…" : "Atualizar senha"}
+                  {isPending ? 'Salvando…' : 'Atualizar senha'}
                 </Button>
               </div>
             </Field>
@@ -136,5 +136,5 @@ export function FormPerfil() {
         </form>
       </CardContent>
     </Card>
-  )
+  );
 }

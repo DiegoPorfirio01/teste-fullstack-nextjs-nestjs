@@ -1,7 +1,7 @@
 // lib/server-fetch.ts
-import { cookies } from "next/headers";
-import { redirect } from "next/navigation";
-import { AUTH_COOKIE_NAME } from "@/constants";
+import { cookies } from 'next/headers';
+import { redirect } from 'next/navigation';
+import { AUTH_COOKIE_NAME } from '@/constants';
 
 type FetchOptions = RequestInit & {
   /** Se true, inclui Authorization Bearer na requisição (default: true) */
@@ -22,7 +22,7 @@ type FetchOptions = RequestInit & {
  */
 export async function serverFetch(
   url: string | URL,
-  options: FetchOptions = {}
+  options: FetchOptions = {},
 ): Promise<Response> {
   const {
     withCredentials = true,
@@ -36,7 +36,7 @@ export async function serverFetch(
     const cookieStore = await cookies();
     const token = cookieStore.get(AUTH_COOKIE_NAME)?.value;
     if (token) {
-      (headersInit as Record<string, string>)["Authorization"] =
+      (headersInit as Record<string, string>)['Authorization'] =
         `Bearer ${token}`;
     }
   }
@@ -46,6 +46,6 @@ export async function serverFetch(
     headers: headersInit,
   });
 
-  if (res.status === 401 && redirectOn401) redirect("/auth/login");
+  if (res.status === 401 && redirectOn401) redirect('/auth/login');
   return res;
 }

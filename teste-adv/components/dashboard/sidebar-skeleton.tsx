@@ -1,10 +1,10 @@
-import { Skeleton } from "@/components/ui/skeleton"
+import { Skeleton } from '@/components/ui/skeleton';
 
 export function SidebarSkeleton() {
   return (
     <aside
       className="hidden shrink-0 flex-col gap-2 border-r bg-sidebar md:flex"
-      style={{ width: "calc(var(--sidebar-width, 16rem))" }}
+      style={{ width: 'calc(var(--sidebar-width, 16rem))' }}
     >
       <div className="flex h-14 items-center gap-2 border-b px-4">
         <Skeleton className="h-6 w-6 rounded" />
@@ -25,5 +25,5 @@ export function SidebarSkeleton() {
         </div>
       </div>
     </aside>
-  )
+  );
 }

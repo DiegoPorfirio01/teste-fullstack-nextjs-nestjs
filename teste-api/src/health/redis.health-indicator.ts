@@ -33,9 +33,9 @@ export class RedisHealthIndicator extends HealthIndicator {
         ),
       );
       const connectAndPing = async () => {
-        await client!.connect();
-        await client!.ping();
-        await client!.quit();
+        await client.connect();
+        await client.ping();
+        await client.quit();
       };
       await Promise.race([connectAndPing(), timeoutPromise]);
       return this.getStatus(key, true);

@@ -1,18 +1,22 @@
-import type { Metadata } from "next"
-import { getCreditPurchases } from "@/actions/credits"
-import { getWalletCredits } from "@/actions/wallet"
-import { formatCurrency, formatDate } from "@/lib/formatters"
-import { ActionError } from "@/components/dashboard/action-error"
-import { PageContainer, PageHeader, PageSection } from "@/components/dashboard/page-layout"
-import { BuyCreditsSheet } from "@/components/dashboard/buy-credits-sheet"
-import { Button } from "@/components/ui/button"
+import type { Metadata } from 'next';
+import { getCreditPurchases } from '@/actions/credits';
+import { getWalletCredits } from '@/actions/wallet';
+import { formatCurrency, formatDate } from '@/lib/formatters';
+import { ActionError } from '@/components/dashboard/action-error';
+import {
+  PageContainer,
+  PageHeader,
+  PageSection,
+} from '@/components/dashboard/page-layout';
+import { BuyCreditsSheet } from '@/components/dashboard/buy-credits-sheet';
+import { Button } from '@/components/ui/button';
 import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card"
+} from '@/components/ui/card';
 import {
   Table,
   TableBody,
@@ -20,23 +24,24 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/table"
-import { Badge } from "@/components/ui/badge"
-import { CreditCardIcon, HistoryIcon } from "lucide-react"
-import { CREDIT_PACKAGES } from "@/constants"
+} from '@/components/ui/table';
+import { Badge } from '@/components/ui/badge';
+import { CreditCardIcon, HistoryIcon } from 'lucide-react';
+import { CREDIT_PACKAGES } from '@/constants';
 
 export const metadata: Metadata = {
-  title: "Comprar Crédito",
-  description: "Gerencie seus créditos e adicione mais quando precisar",
-}
+  title: 'Comprar Crédito',
+  description: 'Gerencie seus créditos e adicione mais quando precisar',
+};
 
 export default async function BillingPage() {
   const [creditsResult, purchasesResult] = await Promise.all([
     getWalletCredits(),
     getCreditPurchases(),
-  ])
-  const credits = "data" in creditsResult ? creditsResult.data : 0
-  const purchases = "data" in purchasesResult ? purchasesResult.data ?? [] : []
+  ]);
+  const credits = 'data' in creditsResult ? creditsResult.data : 0;
+  const purchases =
+    'data' in purchasesResult ? (purchasesResult.data ?? []) : [];
 
   return (
     <PageContainer>
@@ -56,14 +61,14 @@ export default async function BillingPage() {
         </div>
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {CREDIT_PACKAGES.map((pkg) => {
-            const Icon = pkg.icon
+            const Icon = pkg.icon;
             return (
               <Card
                 key={pkg.id}
                 className={`group relative overflow-hidden transition-all duration-200 hover:shadow-md hover:ring-2 hover:ring-primary/20 ${
                   pkg.popular
-                    ? "ring-2 ring-primary shadow-lg"
-                    : "ring-1 ring-foreground/10"
+                    ? 'ring-2 ring-primary shadow-lg'
+                    : 'ring-1 ring-foreground/10'
                 }`}
               >
                 {pkg.popular && (
@@ -105,7 +110,7 @@ export default async function BillingPage() {
                     <Button
                       className="w-full"
                       size="sm"
-                      variant={pkg.popular ? "default" : "outline"}
+                      variant={pkg.popular ? 'default' : 'outline'}
                     >
                       <CreditCardIcon data-icon="inline-start" />
                       Comprar
@@ -113,7 +118,7 @@ export default async function BillingPage() {
                   </BuyCreditsSheet>
                 </CardContent>
               </Card>
-            )
+            );
           })}
         </div>
       </PageSection>
@@ -153,8 +158,8 @@ export default async function BillingPage() {
                 <TableBody>
                   {purchases.map((purchase) => {
                     const pkg = CREDIT_PACKAGES.find(
-                      (p) => p.id === purchase.packageId
-                    )
+                      (p) => p.id === purchase.packageId,
+                    );
                     return (
                       <TableRow key={purchase.id}>
                         <TableCell>
@@ -163,7 +168,9 @@ export default async function BillingPage() {
                               {pkg.credits} créditos
                             </span>
                           ) : (
-                            <Badge variant="secondary">{purchase.packageId}</Badge>
+                            <Badge variant="secondary">
+                              {purchase.packageId}
+                            </Badge>
                           )}
                         </TableCell>
                         <TableCell className="tabular-nums">
@@ -177,10 +184,10 @@ export default async function BillingPage() {
                             ? formatCurrency(purchase.amount, {
                                 maximumFractionDigits: 2,
                               })
-                            : pkg?.price ?? "—"}
+                            : (pkg?.price ?? '—')}
                         </TableCell>
                       </TableRow>
-                    )
+                    );
                   })}
                 </TableBody>
               </Table>
@@ -189,5 +196,5 @@ export default async function BillingPage() {
         </Card>
       </PageSection>
     </PageContainer>
-  )
+  );
 }

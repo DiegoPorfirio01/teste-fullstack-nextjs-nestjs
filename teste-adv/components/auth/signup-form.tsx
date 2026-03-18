@@ -1,39 +1,39 @@
-"use client";
+'use client';
 
-import { useActionState } from "react";
-import Link from "next/link";
-import { cn } from "@/lib/utils";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
+import { useActionState } from 'react';
+import Link from 'next/link';
+import { cn } from '@/lib/utils';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent } from '@/components/ui/card';
 import {
   Field,
   FieldDescription,
   FieldError,
   FieldGroup,
   FieldLabel,
-} from "@/components/ui/field";
-import { PasswordInput } from "@/components/ui/password-input"
-import { NameInput } from "@/components/ui/name-input"
-import { EmailInput } from "@/components/ui/email-input";
-import { registerAction } from "@/actions/auth";
-import type { RegisterState } from "@/types";
-import Image from "next/image";
+} from '@/components/ui/field';
+import { PasswordInput } from '@/components/ui/password-input';
+import { NameInput } from '@/components/ui/name-input';
+import { EmailInput } from '@/components/ui/email-input';
+import { registerAction } from '@/actions/auth';
+import type { RegisterState } from '@/types';
+import Image from 'next/image';
 
 export function SignupForm({
   className,
   ...props
-}: React.ComponentProps<"div">) {
+}: React.ComponentProps<'div'>) {
   const [state, formAction, isPending] = useActionState<
     RegisterState | undefined,
     FormData
   >(registerAction, undefined);
 
   return (
-    <div className={cn("flex flex-col gap-6", className)} {...props}>
+    <div className={cn('flex flex-col gap-6', className)} {...props}>
       <Card className="overflow-hidden p-0">
         <CardContent className="grid p-0 md:grid-cols-2">
           <form
-            key={state?.values ? "has-values" : "initial"}
+            key={state?.values ? 'has-values' : 'initial'}
             className="p-6 md:p-8"
             action={formAction}
           >
@@ -60,7 +60,13 @@ export function SignupForm({
                   aria-invalid={!!state?.fieldErrors?.name}
                   defaultValue={state?.values?.name}
                 />
-                <FieldError errors={state?.fieldErrors?.name?.map((m: string) => ({ message: m })) ?? []} />
+                <FieldError
+                  errors={
+                    state?.fieldErrors?.name?.map((m: string) => ({
+                      message: m,
+                    })) ?? []
+                  }
+                />
               </Field>
 
               <Field data-invalid={!!state?.fieldErrors?.email}>
@@ -72,7 +78,13 @@ export function SignupForm({
                   aria-invalid={!!state?.fieldErrors?.email}
                   defaultValue={state?.values?.email}
                 />
-                <FieldError errors={state?.fieldErrors?.email?.map((m: string) => ({ message: m })) ?? []} />
+                <FieldError
+                  errors={
+                    state?.fieldErrors?.email?.map((m: string) => ({
+                      message: m,
+                    })) ?? []
+                  }
+                />
               </Field>
 
               <Field
@@ -114,9 +126,11 @@ export function SignupForm({
                     />
                     <FieldError
                       errors={
-                        state?.fieldErrors?.confirmPassword?.map((m: string) => ({
-                          message: m,
-                        })) ?? []
+                        state?.fieldErrors?.confirmPassword?.map(
+                          (m: string) => ({
+                            message: m,
+                          }),
+                        ) ?? []
                       }
                     />
                   </Field>
@@ -125,12 +139,15 @@ export function SignupForm({
 
               <Field>
                 <Button type="submit" disabled={isPending}>
-                  {isPending ? "Criando conta…" : "Criar conta"}
+                  {isPending ? 'Criando conta…' : 'Criar conta'}
                 </Button>
               </Field>
               <FieldDescription className="text-center">
-                Já tem uma conta?{" "}
-                <Link href="/auth/login" className="underline underline-offset-4 hover:text-primary">
+                Já tem uma conta?{' '}
+                <Link
+                  href="/auth/login"
+                  className="underline underline-offset-4 hover:text-primary"
+                >
                   Entrar
                 </Link>
               </FieldDescription>
@@ -148,9 +165,9 @@ export function SignupForm({
         </CardContent>
       </Card>
       <FieldDescription className="px-6 text-center">
-        Ao continuar, você concorda com nossos <a href="#">Termos de Uso</a>{" "}
-        e <a href="#">Política de Privacidade</a>.
+        Ao continuar, você concorda com nossos <a href="#">Termos de Uso</a> e{' '}
+        <a href="#">Política de Privacidade</a>.
       </FieldDescription>
     </div>
-  )
+  );
 }

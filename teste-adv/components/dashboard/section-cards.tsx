@@ -1,4 +1,4 @@
-import { Badge } from "@/components/ui/badge"
+import { Badge } from '@/components/ui/badge';
 import {
   Card,
   CardAction,
@@ -6,8 +6,8 @@ import {
   CardFooter,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card"
-import { TrendingUpIcon, TrendingDownIcon } from "lucide-react"
+} from '@/components/ui/card';
+import { TrendingUpIcon, TrendingDownIcon } from 'lucide-react';
 
 export function SectionCards() {
   return (
@@ -20,16 +20,14 @@ export function SectionCards() {
           </CardTitle>
           <CardAction>
             <Badge variant="outline">
-              <TrendingUpIcon
-              />
+              <TrendingUpIcon />
               +12.5%
             </Badge>
           </CardAction>
         </CardHeader>
         <CardFooter className="flex-col items-start gap-1.5 text-sm">
           <div className="line-clamp-1 flex gap-2 font-medium">
-            Crescimento este mês{" "}
-            <TrendingUpIcon className="size-4" />
+            Crescimento este mês <TrendingUpIcon className="size-4" />
           </div>
           <div className="text-muted-foreground">
             Visitantes nos últimos 6 meses
@@ -44,16 +42,14 @@ export function SectionCards() {
           </CardTitle>
           <CardAction>
             <Badge variant="outline">
-              <TrendingDownIcon
-              />
+              <TrendingDownIcon />
               -20%
             </Badge>
           </CardAction>
         </CardHeader>
         <CardFooter className="flex-col items-start gap-1.5 text-sm">
           <div className="line-clamp-1 flex gap-2 font-medium">
-            Queda de 20% neste período{" "}
-            <TrendingDownIcon className="size-4" />
+            Queda de 20% neste período <TrendingDownIcon className="size-4" />
           </div>
           <div className="text-muted-foreground">
             Aquisição precisa de atenção
@@ -68,18 +64,18 @@ export function SectionCards() {
           </CardTitle>
           <CardAction>
             <Badge variant="outline">
-              <TrendingUpIcon
-              />
+              <TrendingUpIcon />
               +12.5%
             </Badge>
           </CardAction>
         </CardHeader>
         <CardFooter className="flex-col items-start gap-1.5 text-sm">
           <div className="line-clamp-1 flex gap-2 font-medium">
-            Retenção forte de usuários{" "}
-            <TrendingUpIcon className="size-4" />
+            Retenção forte de usuários <TrendingUpIcon className="size-4" />
           </div>
-          <div className="text-muted-foreground">Engajamento acima das metas</div>
+          <div className="text-muted-foreground">
+            Engajamento acima das metas
+          </div>
         </CardFooter>
       </Card>
       <Card className="@container/card">
@@ -90,20 +86,21 @@ export function SectionCards() {
           </CardTitle>
           <CardAction>
             <Badge variant="outline">
-              <TrendingUpIcon
-              />
+              <TrendingUpIcon />
               +4.5%
             </Badge>
           </CardAction>
         </CardHeader>
         <CardFooter className="flex-col items-start gap-1.5 text-sm">
           <div className="line-clamp-1 flex gap-2 font-medium">
-            Aumento consistente de desempenho{" "}
+            Aumento consistente de desempenho{' '}
             <TrendingUpIcon className="size-4" />
           </div>
-          <div className="text-muted-foreground">Dentro das projeções de crescimento</div>
+          <div className="text-muted-foreground">
+            Dentro das projeções de crescimento
+          </div>
         </CardFooter>
       </Card>
     </div>
-  )
+  );
 }

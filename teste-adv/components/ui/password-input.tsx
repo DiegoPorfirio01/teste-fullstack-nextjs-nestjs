@@ -1,18 +1,20 @@
-import * as React from "react"
-import { KeyRoundIcon, LockIcon } from "lucide-react"
-import { Input } from "@/components/ui/input"
-import { cn } from "@/lib/utils"
+import * as React from 'react';
+import { KeyRoundIcon, LockIcon } from 'lucide-react';
+import { Input } from '@/components/ui/input';
+import { cn } from '@/lib/utils';
 
-export interface PasswordInputProps
-  extends Omit<React.ComponentProps<typeof Input>, "type"> {
-  type?: "password"
+export interface PasswordInputProps extends Omit<
+  React.ComponentProps<typeof Input>,
+  'type'
+> {
+  type?: 'password';
   /** Ícone exibido: "lock" (padrão) para nova senha, "key" para senha atual */
-  icon?: "lock" | "key"
+  icon?: 'lock' | 'key';
 }
 
 const PasswordInput = React.forwardRef<HTMLInputElement, PasswordInputProps>(
-  ({ className, icon = "lock", ...props }, ref) => {
-    const IconComponent = icon === "key" ? KeyRoundIcon : LockIcon
+  ({ className, icon = 'lock', ...props }, ref) => {
+    const IconComponent = icon === 'key' ? KeyRoundIcon : LockIcon;
     return (
       <div className="relative">
         <IconComponent
@@ -22,15 +24,15 @@ const PasswordInput = React.forwardRef<HTMLInputElement, PasswordInputProps>(
         <Input
           ref={ref}
           type="password"
-          autoComplete={props.autoComplete ?? "current-password"}
-          className={cn("pl-9", className)}
+          autoComplete={props.autoComplete ?? 'current-password'}
+          className={cn('pl-9', className)}
           {...props}
         />
       </div>
-    )
-  }
-)
+    );
+  },
+);
 
-PasswordInput.displayName = "PasswordInput"
+PasswordInput.displayName = 'PasswordInput';
 
-export { PasswordInput }
+export { PasswordInput };

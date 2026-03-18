@@ -1,42 +1,42 @@
-"use client"
+'use client';
 
-import { useEffect } from "react"
-import { useActionState } from "react"
-import { showSuccessToast } from "@/lib/toast"
-import { TOAST_MESSAGES } from "@/constants/toast-messages"
-import { Button } from "@/components/ui/button"
+import { useEffect } from 'react';
+import { useActionState } from 'react';
+import { showSuccessToast } from '@/lib/toast';
+import { TOAST_MESSAGES } from '@/constants/toast-messages';
+import { Button } from '@/components/ui/button';
 import {
   Field,
   FieldDescription,
   FieldError,
   FieldGroup,
   FieldLabel,
-} from "@/components/ui/field"
-import { NameInput } from "@/components/ui/name-input"
-import { EmailInput } from "@/components/ui/email-input"
-import { updateProfileAction } from "@/actions/profile"
-import type { UpdateProfileState } from "@/types"
+} from '@/components/ui/field';
+import { NameInput } from '@/components/ui/name-input';
+import { EmailInput } from '@/components/ui/email-input';
+import { updateProfileAction } from '@/actions/profile';
+import type { UpdateProfileState } from '@/types';
 
 type Props = {
-  fullName: string
-  email: string
-}
+  fullName: string;
+  email: string;
+};
 
 export function FormProfileDetails({ fullName, email }: Props) {
   const [state, formAction, isPending] = useActionState<
     UpdateProfileState | undefined,
     FormData
-  >(updateProfileAction, undefined)
+  >(updateProfileAction, undefined);
 
   useEffect(() => {
     if (state?.success) {
-      showSuccessToast(TOAST_MESSAGES.PROFILE_UPDATED)
+      showSuccessToast(TOAST_MESSAGES.PROFILE_UPDATED);
     }
-  }, [state?.success])
+  }, [state?.success]);
 
   return (
     <form
-      key={state?.values != null ? "has-values" : "initial"}
+      key={state?.values != null ? 'has-values' : 'initial'}
       action={formAction}
     >
       <FieldGroup className="gap-5">
@@ -81,11 +81,11 @@ export function FormProfileDetails({ fullName, email }: Props) {
         <Field>
           <div className="flex justify-end">
             <Button type="submit" disabled={isPending}>
-              {isPending ? "Salvando…" : "Salvar alterações"}
+              {isPending ? 'Salvando…' : 'Salvar alterações'}
             </Button>
           </div>
         </Field>
       </FieldGroup>
     </form>
-  )
+  );
 }

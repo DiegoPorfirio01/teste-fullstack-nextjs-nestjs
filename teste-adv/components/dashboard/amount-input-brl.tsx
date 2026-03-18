@@ -1,44 +1,44 @@
-"use client"
+'use client';
 
-import { useState } from "react"
-import { Button } from "@/components/ui/button"
-import { ButtonGroup, ButtonGroupText } from "@/components/ui/button-group"
-import { Input } from "@/components/ui/input"
-import { MinusIcon, PlusIcon } from "lucide-react"
-import { cn } from "@/lib/utils"
+import { useState } from 'react';
+import { Button } from '@/components/ui/button';
+import { ButtonGroup, ButtonGroupText } from '@/components/ui/button-group';
+import { Input } from '@/components/ui/input';
+import { MinusIcon, PlusIcon } from 'lucide-react';
+import { cn } from '@/lib/utils';
 
-const STEP = 1
-const MIN = 0
+const STEP = 1;
+const MIN = 0;
 
 function formatBRL(value: number): string {
-  if (Number.isNaN(value) || value < 0) return "0,00"
-  return value.toLocaleString("pt-BR", {
+  if (Number.isNaN(value) || value < 0) return '0,00';
+  return value.toLocaleString('pt-BR', {
     minimumFractionDigits: 2,
     maximumFractionDigits: 2,
-  })
+  });
 }
 
 function parseBRL(str: string): number {
-  const cleaned = str.replace(/\./g, "").replace(",", ".").trim()
-  const parsed = parseFloat(cleaned)
-  return Number.isNaN(parsed) ? 0 : Math.max(0, parsed)
+  const cleaned = str.replace(/\./g, '').replace(',', '.').trim();
+  const parsed = parseFloat(cleaned);
+  return Number.isNaN(parsed) ? 0 : Math.max(0, parsed);
 }
 
 export type AmountInputBRLProps = {
-  id?: string
-  name?: string
-  defaultValue?: number
-  onChange?: (value: number) => void
-  min?: number
-  step?: number
-  required?: boolean
-  disabled?: boolean
-  className?: string
-}
+  id?: string;
+  name?: string;
+  defaultValue?: number;
+  onChange?: (value: number) => void;
+  min?: number;
+  step?: number;
+  required?: boolean;
+  disabled?: boolean;
+  className?: string;
+};
 
 export function AmountInputBRL({
-  id = "amount",
-  name = "amount",
+  id = 'amount',
+  name = 'amount',
   defaultValue = 0,
   onChange,
   min = MIN,
@@ -47,41 +47,41 @@ export function AmountInputBRL({
   disabled = false,
   className,
 }: AmountInputBRLProps) {
-  const [amount, setAmount] = useState(defaultValue)
-  const [inputText, setInputText] = useState(() => formatBRL(defaultValue))
+  const [amount, setAmount] = useState(defaultValue);
+  const [inputText, setInputText] = useState(() => formatBRL(defaultValue));
 
   const updateValue = (next: number) => {
-    const clamped = Math.max(min, next)
-    setAmount(clamped)
-    setInputText(formatBRL(clamped))
-    onChange?.(clamped)
-  }
+    const clamped = Math.max(min, next);
+    setAmount(clamped);
+    setInputText(formatBRL(clamped));
+    onChange?.(clamped);
+  };
 
   const handleDecrease = () => {
-    updateValue(amount - step)
-  }
+    updateValue(amount - step);
+  };
 
   const handleIncrease = () => {
-    updateValue(amount + step)
-  }
+    updateValue(amount + step);
+  };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const raw = e.target.value
-    setInputText(raw)
-    setAmount(parseBRL(raw))
-    onChange?.(parseBRL(raw))
-  }
+    const raw = e.target.value;
+    setInputText(raw);
+    setAmount(parseBRL(raw));
+    onChange?.(parseBRL(raw));
+  };
 
   const handleInputBlur = () => {
-    updateValue(amount)
-  }
+    updateValue(amount);
+  };
 
   return (
     <ButtonGroup
       className={cn(
-        "w-full min-w-0 rounded-lg focus-within:ring-3 focus-within:ring-ring/50",
-        disabled && "pointer-events-none opacity-50",
-        className
+        'w-full min-w-0 rounded-lg focus-within:ring-3 focus-within:ring-ring/50',
+        disabled && 'pointer-events-none opacity-50',
+        className,
       )}
     >
       <ButtonGroupText
@@ -137,5 +137,5 @@ export function AmountInputBRL({
         <PlusIcon />
       </Button>
     </ButtonGroup>
-  )
+  );
 }

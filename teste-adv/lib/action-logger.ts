@@ -3,7 +3,7 @@
  * Logs action start, success, and errors (with stack) for observability.
  */
 
-export type LogLevel = "info" | "success" | "error";
+export type LogLevel = 'info' | 'success' | 'error';
 
 export interface ActionLogContext {
   action: string;
@@ -11,7 +11,11 @@ export interface ActionLogContext {
   [key: string]: unknown;
 }
 
-function logStructured(level: LogLevel, context: ActionLogContext, message?: string): void {
+function logStructured(
+  level: LogLevel,
+  context: ActionLogContext,
+  message?: string,
+): void {
   const entry = {
     level,
     timestamp: new Date().toISOString(),
@@ -20,11 +24,11 @@ function logStructured(level: LogLevel, context: ActionLogContext, message?: str
   };
   const line = JSON.stringify(entry);
   switch (level) {
-    case "error":
+    case 'error':
       console.error(line);
       break;
-    case "success":
-    case "info":
+    case 'success':
+    case 'info':
     default:
       console.log(line);
       break;
@@ -34,24 +38,24 @@ function logStructured(level: LogLevel, context: ActionLogContext, message?: str
 /** Log when an action starts */
 export function logActionStart(
   action: string,
-  context?: Record<string, unknown>
+  context?: Record<string, unknown>,
 ): void {
-  logStructured("info", { action, ...context }, "action_start");
+  logStructured('info', { action, ...context }, 'action_start');
 }
 
 /** Log when an action completes successfully */
 export function logActionSuccess(
   action: string,
-  context?: Record<string, unknown>
+  context?: Record<string, unknown>,
 ): void {
-  logStructured("success", { action, ...context }, "action_success");
+  logStructured('success', { action, ...context }, 'action_success');
 }
 
 /** Log when an action fails - includes full error with stack */
 export function logActionError(
   action: string,
   err: unknown,
-  context?: Record<string, unknown>
+  context?: Record<string, unknown>,
 ): void {
   const errorContext: ActionLogContext = {
     action,
@@ -64,5 +68,5 @@ export function logActionError(
   } else {
     errorContext.errorMessage = String(err);
   }
-  logStructured("error", errorContext, "action_error");
+  logStructured('error', errorContext, 'action_error');
 }

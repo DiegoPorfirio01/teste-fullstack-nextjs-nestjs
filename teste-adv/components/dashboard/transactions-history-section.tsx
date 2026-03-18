@@ -1,20 +1,20 @@
-"use client"
+'use client';
 
 import {
   TransactionDirection,
   TransactionStatus,
   TransactionTabFilter,
-} from "@/enums"
-import { useCallback, useMemo, useState } from "react"
+} from '@/enums';
+import { useCallback, useMemo, useState } from 'react';
 import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
+} from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 import {
   Select,
   SelectContent,
@@ -22,14 +22,14 @@ import {
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Button } from "@/components/ui/button"
+} from '@/components/ui/select';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Button } from '@/components/ui/button';
 import {
   Pagination,
   PaginationContent,
   PaginationItem,
-} from "@/components/ui/pagination"
+} from '@/components/ui/pagination';
 import {
   ChevronsLeftIcon,
   ChevronsRightIcon,
@@ -37,58 +37,54 @@ import {
   ChevronRightIcon,
   HistoryIcon,
   SearchIcon,
-} from "lucide-react"
-import type { ITransaction } from "@/types"
-import { formatCurrency, formatDate } from "@/lib/formatters"
-import { TransactionsTable } from "./transactions-table"
+} from 'lucide-react';
+import type { ITransaction } from '@/types';
+import { formatCurrency, formatDate } from '@/lib/formatters';
+import { TransactionsTable } from './transactions-table';
 
-function filterBySearch(
-  list: ITransaction[],
-  search: string
-): ITransaction[] {
-  if (!search.trim()) return list
-  const q = search.trim().toLowerCase()
-  return list.filter(
-    (tx) =>
-      tx.counterpartEmail?.toLowerCase().includes(q)
-  )
+function filterBySearch(list: ITransaction[], search: string): ITransaction[] {
+  if (!search.trim()) return list;
+  const q = search.trim().toLowerCase();
+  return list.filter((tx) => tx.counterpartEmail?.toLowerCase().includes(q));
 }
 
 const received = (tx: ITransaction) =>
   tx.direction === TransactionDirection.RECEIVED &&
-  tx.status === TransactionStatus.COMPLETED
+  tx.status === TransactionStatus.COMPLETED;
 const sent = (tx: ITransaction) =>
   tx.direction === TransactionDirection.SENT &&
-  tx.status === TransactionStatus.COMPLETED
-const reverted = (tx: ITransaction) => tx.status === TransactionStatus.REVERSED
+  tx.status === TransactionStatus.COMPLETED;
+const reverted = (tx: ITransaction) => tx.status === TransactionStatus.REVERSED;
 
-const PAGE_SIZE_OPTIONS = [10, 25, 50] as const
-const TABLE_HEIGHT = "h-[400px]"
+const PAGE_SIZE_OPTIONS = [10, 25, 50] as const;
+const TABLE_HEIGHT = 'h-[400px]';
 
 interface TransactionsHistorySectionProps {
-  transactions: ITransaction[]
+  transactions: ITransaction[];
 }
 
 export function TransactionsHistorySection({
   transactions,
 }: TransactionsHistorySectionProps) {
-  const [search, setSearch] = useState("")
-  const [activeTab, setActiveTab] = useState<TransactionTabFilter>(TransactionTabFilter.SENT)
-  const [page, setPage] = useState(0)
-  const [pageSize, setPageSize] = useState<number>(10)
+  const [search, setSearch] = useState('');
+  const [activeTab, setActiveTab] = useState<TransactionTabFilter>(
+    TransactionTabFilter.SENT,
+  );
+  const [page, setPage] = useState(0);
+  const [pageSize, setPageSize] = useState<number>(10);
 
   const receivedList = useMemo(
     () => filterBySearch(transactions.filter(received), search),
-    [transactions, search]
-  )
+    [transactions, search],
+  );
   const sentList = useMemo(
     () => filterBySearch(transactions.filter(sent), search),
-    [transactions, search]
-  )
+    [transactions, search],
+  );
   const revertedList = useMemo(
     () => filterBySearch(transactions.filter(reverted), search),
-    [transactions, search]
-  )
+    [transactions, search],
+  );
 
   const listByTab = useMemo(
     () =>
@@ -97,35 +93,36 @@ export function TransactionsHistorySection({
         [TransactionTabFilter.RECEIVED]: receivedList,
         [TransactionTabFilter.REVERTED]: revertedList,
       }) as Record<TransactionTabFilter, ITransaction[]>,
-    [sentList, receivedList, revertedList]
-  )
+    [sentList, receivedList, revertedList],
+  );
 
-  const currentList = listByTab[activeTab]
-  const totalPages = Math.max(1, Math.ceil(currentList.length / pageSize))
-  const clampedPage = Math.min(page, totalPages - 1)
+  const currentList = listByTab[activeTab];
+  const totalPages = Math.max(1, Math.ceil(currentList.length / pageSize));
+  const clampedPage = Math.min(page, totalPages - 1);
   const paginatedList = useMemo(
     () =>
       currentList.slice(
         clampedPage * pageSize,
-        clampedPage * pageSize + pageSize
+        clampedPage * pageSize + pageSize,
       ),
-    [currentList, clampedPage, pageSize]
-  )
+    [currentList, clampedPage, pageSize],
+  );
 
   const goToPage = useCallback(
-    (newPage: number) => setPage(Math.max(0, Math.min(newPage, totalPages - 1))),
-    [totalPages]
-  )
+    (newPage: number) =>
+      setPage(Math.max(0, Math.min(newPage, totalPages - 1))),
+    [totalPages],
+  );
 
   const handleTabChange = useCallback((value: string) => {
-    setActiveTab(value as TransactionTabFilter)
-    setPage(0)
-  }, [])
+    setActiveTab(value as TransactionTabFilter);
+    setPage(0);
+  }, []);
 
   const handlePageSizeChange = useCallback((value: string) => {
-    setPageSize(Number(value))
-    setPage(0)
-  }, [])
+    setPageSize(Number(value));
+    setPage(0);
+  }, []);
 
   return (
     <Card>
@@ -150,8 +147,8 @@ export function TransactionsHistorySection({
               placeholder="Buscar por e-mail..."
               value={search}
               onChange={(e) => {
-                setSearch(e.target.value)
-                setPage(0)
+                setSearch(e.target.value);
+                setPage(0);
               }}
               className="pl-9"
               aria-label="Buscar transações por e-mail da contraparte"
@@ -298,5 +295,5 @@ export function TransactionsHistorySection({
         )}
       </CardContent>
     </Card>
-  )
+  );
 }

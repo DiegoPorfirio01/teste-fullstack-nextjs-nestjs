@@ -1,4 +1,4 @@
-import { env } from "@/lib/env";
+import { env } from '@/lib/env';
 
 const base = `${env.NEXT_PUBLIC_API_URL}/v1`;
 
@@ -22,9 +22,7 @@ export const routes = {
   transactions: {
     transfer: `${base}/transactions/transfer`,
     list: `${base}/transactions`,
-    byPeriod: (days: number) =>
-      `${base}/transactions/by-period?days=${days}`,
-    reverse: (id: string) =>
-      `${base}/transactions/${id}/reverse`,
+    byPeriod: (days: number) => `${base}/transactions/by-period?days=${days}`,
+    reverse: (id: string) => `${base}/transactions/${id}/reverse`,
   },
 };

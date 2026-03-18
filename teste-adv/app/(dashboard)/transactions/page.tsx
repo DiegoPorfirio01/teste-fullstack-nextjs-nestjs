@@ -1,24 +1,25 @@
-import type { Metadata } from "next"
-import { getWalletCredits } from "@/actions/wallet"
-import { getTransactions } from "@/actions/transactions"
-import { ActionError } from "@/components/dashboard/action-error"
-import { PageContainer, PageHeader } from "@/components/dashboard/page-layout"
-import { FormTransfer } from "@/components/dashboard/forms/form-transfer"
-import { TransactionsHistorySection } from "@/components/dashboard/transactions-history-section"
+import type { Metadata } from 'next';
+import { getWalletCredits } from '@/actions/wallet';
+import { getTransactions } from '@/actions/transactions';
+import { ActionError } from '@/components/dashboard/action-error';
+import { PageContainer, PageHeader } from '@/components/dashboard/page-layout';
+import { FormTransfer } from '@/components/dashboard/forms/form-transfer';
+import { TransactionsHistorySection } from '@/components/dashboard/transactions-history-section';
 
 export const metadata: Metadata = {
-  title: "Transações",
-  description: "Transfira créditos e consulte o histórico",
-}
+  title: 'Transações',
+  description: 'Transfira créditos e consulte o histórico',
+};
 
 export default async function TransacoesPage() {
   const [creditsResult, transactionsResult] = await Promise.all([
     getWalletCredits(),
     getTransactions(),
-  ])
+  ]);
 
-  const credits = "data" in creditsResult ? creditsResult.data : 0
-  const transactions = "data" in transactionsResult ? transactionsResult.data ?? [] : []
+  const credits = 'data' in creditsResult ? creditsResult.data : 0;
+  const transactions =
+    'data' in transactionsResult ? (transactionsResult.data ?? []) : [];
 
   return (
     <PageContainer>
@@ -28,10 +29,10 @@ export default async function TransacoesPage() {
         title="Transações"
         description={
           <>
-            Transfira créditos e consulte o histórico. Saldo disponível:{" "}
+            Transfira créditos e consulte o histórico. Saldo disponível:{' '}
             <span className="font-medium tabular-nums text-foreground">
               {credits ?? 0}
-            </span>{" "}
+            </span>{' '}
             créditos
           </>
         }
@@ -46,5 +47,5 @@ export default async function TransacoesPage() {
         </main>
       </div>
     </PageContainer>
-  )
+  );
 }

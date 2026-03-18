@@ -1,13 +1,13 @@
-"use client"
+'use client';
 
-import { useActionState } from "react"
+import { useActionState } from 'react';
 import {
   TransactionDirection,
   TransactionStatus,
   TransactionType,
-} from "@/enums"
-import { reverseAction } from "@/actions/transactions"
-import { Button } from "@/components/ui/button"
+} from '@/enums';
+import { reverseAction } from '@/actions/transactions';
+import { Button } from '@/components/ui/button';
 import {
   Table,
   TableBody,
@@ -15,8 +15,8 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/table"
-import { Badge } from "@/components/ui/badge"
+} from '@/components/ui/table';
+import { Badge } from '@/components/ui/badge';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -27,60 +27,61 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
   AlertDialogTrigger,
-} from "@/components/ui/alert-dialog"
-import { Undo2Icon } from "lucide-react"
-import { cn } from "@/lib/utils"
-import type { ITransaction } from "@/types"
+} from '@/components/ui/alert-dialog';
+import { Undo2Icon } from 'lucide-react';
+import { cn } from '@/lib/utils';
+import type { ITransaction } from '@/types';
 import {
   Tooltip,
   TooltipContent,
   TooltipTrigger,
-} from "@/components/ui/tooltip"
-import { isWithinRevertWindow } from "@/lib/utils"
+} from '@/components/ui/tooltip';
+import { isWithinRevertWindow } from '@/lib/utils';
 
 interface TransactionsTableProps {
-  transactions: ITransaction[]
-  formatDate: (iso: string) => string
-  formatAmount: (amount: number) => string
+  transactions: ITransaction[];
+  formatDate: (iso: string) => string;
+  formatAmount: (amount: number) => string;
 }
 
-function TypeBadge({ type }: { type: ITransaction["type"] }) {
+function TypeBadge({ type }: { type: ITransaction['type'] }) {
   return (
-    <Badge variant={type === TransactionType.DEPOSIT ? "secondary" : "outline"}>
-      {type === TransactionType.DEPOSIT ? "Depósito" : "Transferência"}
+    <Badge variant={type === TransactionType.DEPOSIT ? 'secondary' : 'outline'}>
+      {type === TransactionType.DEPOSIT ? 'Depósito' : 'Transferência'}
     </Badge>
-  )
+  );
 }
 
 function RevertButton({
   transactionId,
   disabled,
 }: {
-  transactionId: string
-  disabled?: boolean
+  transactionId: string;
+  disabled?: boolean;
 }) {
-  const [state, formAction, isPending] = useActionState(reverseAction, undefined)
+  const [state, formAction, isPending] = useActionState(
+    reverseAction,
+    undefined,
+  );
 
   const trigger = (
     <Button variant="outline" size="sm" disabled={disabled}>
       <Undo2Icon data-icon="inline-start" />
       Reverter
     </Button>
-  )
+  );
 
   if (disabled) {
     return (
       <Tooltip>
         <TooltipTrigger asChild>
-          <span className="inline-flex cursor-not-allowed">
-            {trigger}
-          </span>
+          <span className="inline-flex cursor-not-allowed">{trigger}</span>
         </TooltipTrigger>
         <TooltipContent>
           Só é possível reverter dentro de 10 minutos após a transferência.
         </TooltipContent>
       </Tooltip>
-    )
+    );
   }
 
   return (
@@ -102,13 +103,13 @@ function RevertButton({
           <AlertDialogFooter>
             <AlertDialogCancel disabled={isPending}>Cancelar</AlertDialogCancel>
             <AlertDialogAction type="submit" disabled={isPending}>
-              {isPending ? "Revertendo…" : "Confirmar"}
+              {isPending ? 'Revertendo…' : 'Confirmar'}
             </AlertDialogAction>
           </AlertDialogFooter>
         </form>
       </AlertDialogContent>
     </AlertDialog>
-  )
+  );
 }
 
 export function TransactionsTable({
@@ -121,7 +122,7 @@ export function TransactionsTable({
       <p className="py-8 text-center text-sm text-muted-foreground">
         Nenhuma transação encontrada
       </p>
-    )
+    );
   }
 
   return (
@@ -143,18 +144,18 @@ export function TransactionsTable({
             </TableCell>
             <TableCell
               className={cn(
-                "tabular-nums font-medium",
+                'tabular-nums font-medium',
                 tx.status === TransactionStatus.REVERSED &&
-                  "text-yellow-600 dark:text-yellow-500",
+                  'text-yellow-600 dark:text-yellow-500',
                 tx.status !== TransactionStatus.REVERSED &&
                   tx.direction === TransactionDirection.RECEIVED &&
-                  "text-blue-600 dark:text-blue-400",
+                  'text-blue-600 dark:text-blue-400',
                 tx.status !== TransactionStatus.REVERSED &&
                   tx.direction === TransactionDirection.SENT &&
-                  "text-red-600 dark:text-red-400"
+                  'text-red-600 dark:text-red-400',
               )}
             >
-              {tx.direction === TransactionDirection.RECEIVED ? "+" : "-"}
+              {tx.direction === TransactionDirection.RECEIVED ? '+' : '-'}
               {formatAmount(tx.amount)}
             </TableCell>
             <TableCell className="text-muted-foreground">
@@ -162,7 +163,7 @@ export function TransactionsTable({
             </TableCell>
             <TableCell className="text-muted-foreground">
               {tx.counterpartEmail ??
-                (tx.type === TransactionType.DEPOSIT ? "Depósito" : "—")}
+                (tx.type === TransactionType.DEPOSIT ? 'Depósito' : '—')}
             </TableCell>
             <TableCell className="text-right">
               {tx.direction === TransactionDirection.SENT &&
@@ -180,5 +181,5 @@ export function TransactionsTable({
         ))}
       </TableBody>
     </Table>
-  )
+  );
 }

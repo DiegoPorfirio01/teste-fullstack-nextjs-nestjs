@@ -1,11 +1,13 @@
-import * as React from "react"
-import { MailIcon } from "lucide-react"
-import { Input } from "@/components/ui/input"
-import { cn } from "@/lib/utils"
+import * as React from 'react';
+import { MailIcon } from 'lucide-react';
+import { Input } from '@/components/ui/input';
+import { cn } from '@/lib/utils';
 
-export interface EmailInputProps
-  extends Omit<React.ComponentProps<typeof Input>, "type"> {
-  type?: "email"
+export interface EmailInputProps extends Omit<
+  React.ComponentProps<typeof Input>,
+  'type'
+> {
+  type?: 'email';
 }
 
 const EmailInput = React.forwardRef<HTMLInputElement, EmailInputProps>(
@@ -19,14 +21,14 @@ const EmailInput = React.forwardRef<HTMLInputElement, EmailInputProps>(
         <Input
           ref={ref}
           type="email"
-          className={cn("pl-9", className)}
+          className={cn('pl-9', className)}
           {...props}
         />
       </div>
-    )
-  }
-)
+    );
+  },
+);
 
-EmailInput.displayName = "EmailInput"
+EmailInput.displayName = 'EmailInput';
 
-export { EmailInput }
+export { EmailInput };

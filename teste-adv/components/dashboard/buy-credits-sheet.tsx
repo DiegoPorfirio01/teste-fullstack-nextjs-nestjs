@@ -1,6 +1,6 @@
-"use client"
+'use client';
 
-import { useState } from "react"
+import { useState } from 'react';
 import {
   Sheet,
   SheetContent,
@@ -8,20 +8,20 @@ import {
   SheetHeader,
   SheetTitle,
   SheetTrigger,
-} from "@/components/ui/sheet"
-import { FormBilling } from "@/components/dashboard/forms/form-billing"
+} from '@/components/ui/sheet';
+import { FormBilling } from '@/components/dashboard/forms/form-billing';
 
 export function BuyCreditsSheet({
   children,
   defaultPackageId,
   creditsRemaining,
 }: {
-  children: React.ReactNode
-  defaultPackageId?: string
-  creditsRemaining?: number | null
+  children: React.ReactNode;
+  defaultPackageId?: string;
+  creditsRemaining?: number | null;
 }) {
-  const [open, setOpen] = useState(false)
-  const credits = creditsRemaining ?? 0
+  const [open, setOpen] = useState(false);
+  const credits = creditsRemaining ?? 0;
 
   return (
     <Sheet open={open} onOpenChange={setOpen}>
@@ -46,5 +46,5 @@ export function BuyCreditsSheet({
         </div>
       </SheetContent>
     </Sheet>
-  )
+  );
 }

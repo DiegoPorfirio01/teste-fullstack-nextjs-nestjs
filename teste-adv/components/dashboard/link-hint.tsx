@@ -1,6 +1,6 @@
-"use client"
+'use client';
 
-import { useLinkStatus } from "next/link"
+import { useLinkStatus } from 'next/link';
 
 /**
  * Hint component for sidebar links. Must be used as a descendant of a Link component.
@@ -8,11 +8,8 @@ import { useLinkStatus } from "next/link"
  * @see https://nextjs.org/docs/app/api-reference/functions/use-link-status
  */
 export function LinkHint() {
-  const { pending } = useLinkStatus()
+  const { pending } = useLinkStatus();
   return (
-    <span
-      aria-hidden
-      className={`link-hint ${pending ? "is-pending" : ""}`}
-    />
-  )
+    <span aria-hidden className={`link-hint ${pending ? 'is-pending' : ''}`} />
+  );
 }

@@ -1,4 +1,4 @@
-import { unstable_rethrow } from "next/navigation";
+import { unstable_rethrow } from 'next/navigation';
 
 /**
  * Utilitários para Server Actions - tratamento de erros e redirect.
@@ -21,6 +21,6 @@ export function rethrowNavigationError(err: unknown): void {
  */
 export function toUserFriendlyMessage(err: unknown, fallback: string): string {
   if (err instanceof Error && err.message) return err.message;
-  if (typeof err === "string") return err;
+  if (typeof err === 'string') return err;
   return fallback;
 }

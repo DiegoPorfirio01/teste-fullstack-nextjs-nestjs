@@ -1,11 +1,11 @@
-import { loginSchema, registerSchema } from "@/schemas/auth-form";
-import z from "zod";
+import { loginSchema, registerSchema } from '@/schemas/auth-form';
+import z from 'zod';
 
 import type {
   TransactionDirection,
   TransactionStatus,
   TransactionType,
-} from "@/enums";
+} from '@/enums';
 
 export type { TransactionDirection, TransactionStatus, TransactionType };
 

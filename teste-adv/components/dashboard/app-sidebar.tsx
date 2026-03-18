@@ -1,10 +1,10 @@
-"use client"
+'use client';
 
-import * as React from "react"
-import Link from "next/link"
+import * as React from 'react';
+import Link from 'next/link';
 
-import { NavMain } from "@/components/dashboard/nav-main"
-import { NavUser } from "@/components/dashboard/nav-user"
+import { NavMain } from '@/components/dashboard/nav-main';
+import { NavUser } from '@/components/dashboard/nav-user';
 import {
   Sidebar,
   SidebarContent,
@@ -13,42 +13,42 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
-} from "@/components/ui/sidebar"
-import { ROUTE_LABELS, SIDEBAR_NAV_PATHS } from "@/constants"
+} from '@/components/ui/sidebar';
+import { ROUTE_LABELS, SIDEBAR_NAV_PATHS } from '@/constants';
 import {
   LayoutDashboardIcon,
   HistoryIcon,
   WalletIcon,
   CreditCardIcon,
-} from "lucide-react"
+} from 'lucide-react';
 
 const NAV_ICONS: Record<(typeof SIDEBAR_NAV_PATHS)[number], React.ReactNode> = {
-  "/dashboard": <LayoutDashboardIcon />,
-  "/transactions": <HistoryIcon />,
-  "/billing": <CreditCardIcon />,
-}
+  '/dashboard': <LayoutDashboardIcon />,
+  '/transactions': <HistoryIcon />,
+  '/billing': <CreditCardIcon />,
+};
 
 const navMain = SIDEBAR_NAV_PATHS.map((url) => ({
   title: ROUTE_LABELS[url] ?? url,
   url,
   icon: NAV_ICONS[url],
-}))
+}));
 
 const data = {
   navMain,
-}
+};
 
 export function AppSidebar({
   user,
   ...props
 }: React.ComponentProps<typeof Sidebar> & {
-  user?: { name: string; email: string; avatar: string }
+  user?: { name: string; email: string; avatar: string };
 }) {
   const displayUser = user ?? {
-    name: "Usuário",
-    email: "usuario@exemplo.com",
-    avatar: "/avatars/shadcn.jpg",
-  }
+    name: 'Usuário',
+    email: 'usuario@exemplo.com',
+    avatar: 'https://via.placeholder.com/150',
+  };
 
   return (
     <Sidebar collapsible="offcanvas" {...props}>
@@ -74,5 +74,5 @@ export function AppSidebar({
         <NavUser user={displayUser} />
       </SidebarFooter>
     </Sidebar>
-  )
+  );
 }

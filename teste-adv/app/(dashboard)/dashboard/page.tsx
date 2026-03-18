@@ -1,26 +1,26 @@
-import type { Metadata } from "next"
-import { getWalletCredits } from "@/actions/wallet"
-import { getTransactions } from "@/actions/transactions"
-import { ActionError } from "@/components/dashboard/action-error"
-import { ChartTransactions } from "@/components/dashboard/chart-transactions"
-import { DashboardCards } from "@/components/dashboard/dashboard-cards"
-import { TransactionsHistorySection } from "@/components/dashboard/transactions-history-section"
+import type { Metadata } from 'next';
+import { getWalletCredits } from '@/actions/wallet';
+import { getTransactions } from '@/actions/transactions';
+import { ActionError } from '@/components/dashboard/action-error';
+import { ChartTransactions } from '@/components/dashboard/chart-transactions';
+import { DashboardCards } from '@/components/dashboard/dashboard-cards';
+import { TransactionsHistorySection } from '@/components/dashboard/transactions-history-section';
 
 export const metadata: Metadata = {
-  title: "Painel",
-  description: "Visão geral da sua carteira, transações e créditos",
-}
+  title: 'Painel',
+  description: 'Visão geral da sua carteira, transações e créditos',
+};
 
 export default async function DashboardPage() {
   const [creditsResult, transactionsResult] = await Promise.all([
     getWalletCredits(),
     getTransactions(),
-  ])
+  ]);
 
   const credits: number =
-    "data" in creditsResult ? (creditsResult.data ?? 0) : 0
+    'data' in creditsResult ? (creditsResult.data ?? 0) : 0;
   const transactions =
-    "data" in transactionsResult ? transactionsResult.data ?? [] : []
+    'data' in transactionsResult ? (transactionsResult.data ?? []) : [];
 
   return (
     <div className="flex flex-col gap-4 py-4 md:gap-6 md:py-6">
@@ -34,5 +34,5 @@ export default async function DashboardPage() {
         <TransactionsHistorySection transactions={transactions} />
       </div>
     </div>
-  )
+  );
 }

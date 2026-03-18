@@ -1,6 +1,6 @@
-"use client";
+'use client';
 
-import { ErrorBoundaryContent } from "@/components/error/error-boundary-content";
+import { ErrorBoundaryContent } from '@/components/error/error-boundary-content';
 
 export default function DashboardError({
   error,

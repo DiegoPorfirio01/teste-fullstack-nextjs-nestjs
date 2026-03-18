@@ -1,27 +1,27 @@
-"use client"
+'use client';
 
-import Link from "next/link"
-import { usePathname } from "next/navigation"
+import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 import {
   SidebarGroup,
   SidebarGroupContent,
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
-} from "@/components/ui/sidebar"
-import { LinkHint } from "@/components/dashboard/link-hint"
+} from '@/components/ui/sidebar';
+import { LinkHint } from '@/components/dashboard/link-hint';
 
 export function NavSecondary({
   items,
   ...props
 }: {
   items: {
-    title: string
-    url: string
-    icon: React.ReactNode
-  }[]
+    title: string;
+    url: string;
+    icon: React.ReactNode;
+  }[];
 } & React.ComponentPropsWithoutRef<typeof SidebarGroup>) {
-  const pathname = usePathname()
+  const pathname = usePathname();
 
   return (
     <SidebarGroup {...props}>
@@ -32,7 +32,7 @@ export function NavSecondary({
               <SidebarMenuButton
                 asChild
                 tooltip={item.title}
-                isActive={pathname === item.url && pathname !== "/dashboard"}
+                isActive={pathname === item.url && pathname !== '/dashboard'}
               >
                 <Link href={item.url} prefetch={false}>
                   {item.icon}
@@ -45,5 +45,5 @@ export function NavSecondary({
         </SidebarMenu>
       </SidebarGroupContent>
     </SidebarGroup>
-  )
+  );
 }

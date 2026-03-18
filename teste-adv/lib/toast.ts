@@ -1,6 +1,6 @@
-"use client";
+'use client';
 
-import { toast } from "sonner";
+import { toast } from 'sonner';
 
 /** Duração padrão para toasts de sucesso (5s). Garante visibilidade em E2E e UX. */
 const DEFAULT_SUCCESS_DURATION = 5_000;

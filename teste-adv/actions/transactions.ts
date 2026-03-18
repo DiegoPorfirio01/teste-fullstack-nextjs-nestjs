@@ -1,29 +1,32 @@
-"use server";
+'use server';
 
-import { revalidatePath } from "next/cache";
-import { routes } from "@/api-routes";
-import { getProfileCached } from "@/actions/profile";
-import { getApiErrorMessage } from "@/lib/api-error";
-import { rethrowNavigationError, toUserFriendlyMessage } from "@/lib/action-utils";
+import { revalidatePath } from 'next/cache';
+import { routes } from '@/api-routes';
+import { getProfileCached } from '@/actions/profile';
+import { getApiErrorMessage } from '@/lib/api-error';
+import {
+  rethrowNavigationError,
+  toUserFriendlyMessage,
+} from '@/lib/action-utils';
 import {
   logActionStart,
   logActionSuccess,
   logActionError,
-} from "@/lib/action-logger";
-import { serverFetch } from "@/lib/server-fetch";
-import { extractList } from "@/lib/api-response";
+} from '@/lib/action-logger';
+import { serverFetch } from '@/lib/server-fetch';
+import { extractList } from '@/lib/api-response';
 import {
   TransactionDirection,
   TransactionStatus,
   TransactionType,
-} from "@/enums";
+} from '@/enums';
 import type {
   ITransaction,
   ActionResult,
   ReverseState,
   TransactionByPeriodItem,
   TransferState,
-} from "@/types";
+} from '@/types';
 
 const REVERT_WINDOW_MS = 10 * 60 * 1000; // 10 minutos
 const MAX_AMOUNT = 1_000_000;
@@ -50,22 +53,25 @@ interface RawTransaction {
   receiver?: { email?: string } | null;
 }
 
-function resolveDirection(raw: RawTransaction, userId: string): ITransaction["direction"] {
+function resolveDirection(
+  raw: RawTransaction,
+  userId: string,
+): ITransaction['direction'] {
   const hasExplicit =
     raw.direction === TransactionDirection.SENT ||
     raw.direction === TransactionDirection.RECEIVED;
-  if (hasExplicit) return raw.direction as ITransaction["direction"];
+  if (hasExplicit) return raw.direction as ITransaction['direction'];
 
   const isSent = raw.senderId === userId;
   return isSent ? TransactionDirection.SENT : TransactionDirection.RECEIVED;
 }
 
 function resolveCanReverse(raw: RawTransaction, userId: string): boolean {
-  if (typeof raw.canReverse === "boolean") return raw.canReverse;
+  if (typeof raw.canReverse === 'boolean') return raw.canReverse;
 
   const createdAt = raw.createdAt;
   const createdTime =
-    typeof createdAt === "string"
+    typeof createdAt === 'string'
       ? new Date(createdAt).getTime()
       : createdAt instanceof Date
         ? createdAt.getTime()
@@ -82,8 +88,7 @@ function resolveCanReverse(raw: RawTransaction, userId: string): boolean {
 }
 
 function resolveCounterpartEmail(raw: RawTransaction): string | undefined {
-  const fromField =
-    raw.counterpartEmail ?? raw.counterpart_email;
+  const fromField = raw.counterpartEmail ?? raw.counterpart_email;
   if (fromField) return fromField;
 
   const direction = raw.direction as string | undefined;
@@ -94,10 +99,13 @@ function resolveCounterpartEmail(raw: RawTransaction): string | undefined {
   return nested ?? undefined;
 }
 
-function mapRawToTransaction(raw: RawTransaction, userId: string): ITransaction {
+function mapRawToTransaction(
+  raw: RawTransaction,
+  userId: string,
+): ITransaction {
   const createdAt = raw.createdAt;
   const isoDate =
-    typeof createdAt === "string"
+    typeof createdAt === 'string'
       ? createdAt
       : createdAt instanceof Date
         ? createdAt.toISOString()
@@ -105,11 +113,12 @@ function mapRawToTransaction(raw: RawTransaction, userId: string): ITransaction 
 
   return {
     id: String(raw.id),
-    type: (raw.type as ITransaction["type"]) ?? TransactionType.TRANSFER,
+    type: (raw.type as ITransaction['type']) ?? TransactionType.TRANSFER,
     amount: Number(raw.amount ?? 0),
     senderId: raw.senderId ?? undefined,
     receiverId: raw.receiverId ?? undefined,
-    status: (raw.status as ITransaction["status"]) ?? TransactionStatus.COMPLETED,
+    status:
+      (raw.status as ITransaction['status']) ?? TransactionStatus.COMPLETED,
     createdAt: isoDate,
     direction: resolveDirection(raw, userId),
     canReverse: resolveCanReverse(raw, userId),
@@ -121,25 +130,27 @@ function mapRawToTransaction(raw: RawTransaction, userId: string): ITransaction 
 
 export async function transferAction(
   _prevState: TransferState | undefined,
-  formData: FormData
+  formData: FormData,
 ): Promise<TransferState> {
-  const receiverEmail = (formData.get("receiverEmail") as string)?.trim();
-  const amountStr = formData.get("amount") as string;
-  const amount = parseFloat(amountStr ?? "0");
+  const receiverEmail = (formData.get('receiverEmail') as string)?.trim();
+  const amountStr = formData.get('amount') as string;
+  const amount = parseFloat(amountStr ?? '0');
 
   if (!receiverEmail) {
-    return { fieldErrors: { receiverEmail: ["Informe o e-mail do destinatário"] } };
+    return {
+      fieldErrors: { receiverEmail: ['Informe o e-mail do destinatário'] },
+    };
   }
   if (!EMAIL_REGEX.test(receiverEmail)) {
     return {
-      fieldErrors: { receiverEmail: ["E-mail do destinatário inválido"] },
+      fieldErrors: { receiverEmail: ['E-mail do destinatário inválido'] },
       receiverEmail,
       amount,
     };
   }
   if (!amount || amount <= 0) {
     return {
-      fieldErrors: { amount: ["Informe um valor válido"] },
+      fieldErrors: { amount: ['Informe um valor válido'] },
       receiverEmail,
       amount,
     };
@@ -147,38 +158,45 @@ export async function transferAction(
   if (amount > MAX_AMOUNT) {
     return {
       fieldErrors: {
-        amount: [`Valor máximo permitido é R$ ${MAX_AMOUNT.toLocaleString("pt-BR")}`],
+        amount: [
+          `Valor máximo permitido é R$ ${MAX_AMOUNT.toLocaleString('pt-BR')}`,
+        ],
       },
       receiverEmail,
       amount,
     };
   }
 
-  logActionStart("transferAction", { receiverEmail, amount });
+  logActionStart('transferAction', { receiverEmail, amount });
 
   try {
     const res = await serverFetch(routes.transactions.transfer, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ receiverEmail, amount }),
     });
 
     const data = (await res.json()) as Record<string, unknown>;
     if (!res.ok) {
-      const msg = getApiErrorMessage(data, "Falha ao transferir");
-      logActionError("transferAction", new Error(msg), { receiverEmail, amount, status: res.status, responseData: data });
+      const msg = getApiErrorMessage(data, 'Falha ao transferir');
+      logActionError('transferAction', new Error(msg), {
+        receiverEmail,
+        amount,
+        status: res.status,
+        responseData: data,
+      });
       return { error: msg, receiverEmail, amount };
     }
 
-    revalidatePath("/transactions");
-    revalidatePath("/dashboard");
-    logActionSuccess("transferAction", { receiverEmail, amount });
+    revalidatePath('/transactions');
+    revalidatePath('/dashboard');
+    logActionSuccess('transferAction', { receiverEmail, amount });
     return { success: true };
   } catch (err) {
-    logActionError("transferAction", err, { receiverEmail, amount });
+    logActionError('transferAction', err, { receiverEmail, amount });
     rethrowNavigationError(err);
     return {
-      error: toUserFriendlyMessage(err, "Erro inesperado ao transferir"),
+      error: toUserFriendlyMessage(err, 'Erro inesperado ao transferir'),
       receiverEmail,
       amount,
     };
@@ -187,36 +205,40 @@ export async function transferAction(
 
 export async function reverseAction(
   _prevState: ReverseState | undefined,
-  formData: FormData
+  formData: FormData,
 ): Promise<ReverseState> {
-  const transactionId = (formData.get("transactionId") as string)?.trim();
+  const transactionId = (formData.get('transactionId') as string)?.trim();
   if (!transactionId) {
-    return { error: "ID da transação inválido" };
+    return { error: 'ID da transação inválido' };
   }
 
-  logActionStart("reverseAction", { transactionId });
+  logActionStart('reverseAction', { transactionId });
 
   try {
     const res = await serverFetch(routes.transactions.reverse(transactionId), {
-      method: "POST",
+      method: 'POST',
     });
 
     const data = (await res.json()) as Record<string, unknown>;
     if (!res.ok) {
-      const msg = getApiErrorMessage(data, "Falha ao reverter transação");
-      logActionError("reverseAction", new Error(msg), { transactionId, status: res.status, responseData: data });
+      const msg = getApiErrorMessage(data, 'Falha ao reverter transação');
+      logActionError('reverseAction', new Error(msg), {
+        transactionId,
+        status: res.status,
+        responseData: data,
+      });
       return { error: msg };
     }
 
-    revalidatePath("/transactions");
-    revalidatePath("/dashboard");
-    logActionSuccess("reverseAction", { transactionId });
+    revalidatePath('/transactions');
+    revalidatePath('/dashboard');
+    logActionSuccess('reverseAction', { transactionId });
     return { success: true };
   } catch (err) {
-    logActionError("reverseAction", err, { transactionId });
+    logActionError('reverseAction', err, { transactionId });
     rethrowNavigationError(err);
     return {
-      error: toUserFriendlyMessage(err, "Erro inesperado ao reverter"),
+      error: toUserFriendlyMessage(err, 'Erro inesperado ao reverter'),
     };
   }
 }
@@ -224,15 +246,22 @@ export async function reverseAction(
 // ---- Actions (reads) ----
 
 export async function getTransactionsByPeriod(
-  days: 7 | 30 | 90
+  days: 7 | 30 | 90,
 ): Promise<ActionResult<TransactionByPeriodItem[]>> {
-  logActionStart("getTransactionsByPeriod", { days });
+  logActionStart('getTransactionsByPeriod', { days });
   try {
     const res = await serverFetch(routes.transactions.byPeriod(days));
     if (!res.ok) {
       const data = (await res.json()) as Record<string, unknown>;
-      const msg = getApiErrorMessage(data, "Falha ao carregar dados do gráfico");
-      logActionError("getTransactionsByPeriod", new Error(msg), { days, status: res.status, responseData: data });
+      const msg = getApiErrorMessage(
+        data,
+        'Falha ao carregar dados do gráfico',
+      );
+      logActionError('getTransactionsByPeriod', new Error(msg), {
+        days,
+        status: res.status,
+        responseData: data,
+      });
       return { error: msg };
     }
 
@@ -240,24 +269,27 @@ export async function getTransactionsByPeriod(
     const list = extractList<Record<string, unknown>>(data);
 
     const items: TransactionByPeriodItem[] = list.map((item) => ({
-      date: String(item.date ?? ""),
+      date: String(item.date ?? ''),
       recebido: Number(item.recebido ?? 0),
       enviado: Number(item.enviado ?? 0),
     }));
 
-    logActionSuccess("getTransactionsByPeriod", { days });
+    logActionSuccess('getTransactionsByPeriod', { days });
     return { data: items };
   } catch (err) {
-    logActionError("getTransactionsByPeriod", err, { days });
+    logActionError('getTransactionsByPeriod', err, { days });
     rethrowNavigationError(err);
     return {
-      error: toUserFriendlyMessage(err, "Falha ao carregar transações por período"),
+      error: toUserFriendlyMessage(
+        err,
+        'Falha ao carregar transações por período',
+      ),
     };
   }
 }
 
 export async function getTransactions(): Promise<ActionResult<ITransaction[]>> {
-  logActionStart("getTransactions");
+  logActionStart('getTransactions');
   try {
     const [profileResult, transactionsRes] = await Promise.all([
       getProfileCached(),
@@ -266,8 +298,11 @@ export async function getTransactions(): Promise<ActionResult<ITransaction[]>> {
 
     if (!transactionsRes.ok) {
       const data = (await transactionsRes.json()) as Record<string, unknown>;
-      const msg = getApiErrorMessage(data, "Falha ao buscar transações");
-      logActionError("getTransactions", new Error(msg), { status: transactionsRes.status, responseData: data });
+      const msg = getApiErrorMessage(data, 'Falha ao buscar transações');
+      logActionError('getTransactions', new Error(msg), {
+        status: transactionsRes.status,
+        responseData: data,
+      });
       return { error: msg };
     }
 
@@ -279,21 +314,21 @@ export async function getTransactions(): Promise<ActionResult<ITransaction[]>> {
     if (!userId) {
       return {
         data: rawList.map((raw) =>
-          mapRawToTransaction(raw as RawTransaction, "")
+          mapRawToTransaction(raw as RawTransaction, ''),
         ) as ITransaction[],
       };
     }
 
     const transactions = rawList.map((raw) =>
-      mapRawToTransaction(raw as RawTransaction, userId)
+      mapRawToTransaction(raw as RawTransaction, userId),
     );
-    logActionSuccess("getTransactions", { count: transactions.length });
+    logActionSuccess('getTransactions', { count: transactions.length });
     return { data: transactions };
   } catch (err) {
-    logActionError("getTransactions", err);
+    logActionError('getTransactions', err);
     rethrowNavigationError(err);
     return {
-      error: toUserFriendlyMessage(err, "Falha ao buscar transações"),
+      error: toUserFriendlyMessage(err, 'Falha ao buscar transações'),
     };
   }
 }

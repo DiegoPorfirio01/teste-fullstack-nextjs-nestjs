@@ -1,10 +1,10 @@
-"use client";
+'use client';
 
-import { useActionState } from "react";
-import Link from "next/link";
-import { cn } from "@/lib/utils";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
+import { useActionState } from 'react';
+import Link from 'next/link';
+import { cn } from '@/lib/utils';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent } from '@/components/ui/card';
 import {
   Field,
   FieldDescription,
@@ -12,28 +12,28 @@ import {
   FieldGroup,
   FieldLabel,
   FieldSeparator,
-} from "@/components/ui/field";
-import { PasswordInput } from "@/components/ui/password-input"
-import { EmailInput } from "@/components/ui/email-input";
-import { loginAction } from "@/actions/auth";
-import type { LoginState } from "@/types";
-import Image from "next/image";
+} from '@/components/ui/field';
+import { PasswordInput } from '@/components/ui/password-input';
+import { EmailInput } from '@/components/ui/email-input';
+import { loginAction } from '@/actions/auth';
+import type { LoginState } from '@/types';
+import Image from 'next/image';
 
 export function LoginForm({
   className,
   ...props
-}: React.ComponentProps<"div">) {
+}: React.ComponentProps<'div'>) {
   const [state, formAction, isPending] = useActionState<
     LoginState | undefined,
     FormData
   >(loginAction, undefined);
 
   return (
-    <div className={cn("flex flex-col gap-6", className)} {...props}>
+    <div className={cn('flex flex-col gap-6', className)} {...props}>
       <Card className="overflow-hidden p-0">
         <CardContent className="grid p-0 md:grid-cols-2">
           <form
-            key={state?.values ? "has-values" : "initial"}
+            key={state?.values ? 'has-values' : 'initial'}
             className="p-6 md:p-8"
             action={formAction}
           >
@@ -61,7 +61,13 @@ export function LoginForm({
                   aria-invalid={!!state?.fieldErrors?.email}
                   defaultValue={state?.values?.email}
                 />
-                <FieldError errors={state?.fieldErrors?.email?.map((m: string) => ({ message: m })) ?? []} />
+                <FieldError
+                  errors={
+                    state?.fieldErrors?.email?.map((m: string) => ({
+                      message: m,
+                    })) ?? []
+                  }
+                />
               </Field>
 
               <Field data-invalid={!!state?.fieldErrors?.password}>
@@ -84,14 +90,17 @@ export function LoginForm({
 
               <Field>
                 <Button type="submit" disabled={isPending}>
-                  {isPending ? "Entrando…" : "Entrar"}
+                  {isPending ? 'Entrando…' : 'Entrar'}
                 </Button>
               </Field>
 
               <FieldSeparator className="*:data-[slot=field-separator-content]:bg-card"></FieldSeparator>
               <FieldDescription className="text-center">
-                Não tem uma conta?{" "}
-                <Link href="/auth/register" className="underline underline-offset-4 hover:text-primary">
+                Não tem uma conta?{' '}
+                <Link
+                  href="/auth/register"
+                  className="underline underline-offset-4 hover:text-primary"
+                >
                   Cadastre-se
                 </Link>
               </FieldDescription>
@@ -109,9 +118,9 @@ export function LoginForm({
         </CardContent>
       </Card>
       <FieldDescription className="px-6 text-center">
-        Ao continuar, você concorda com nossos <a href="#">Termos de Uso</a>{" "}
-        e <a href="#">Política de Privacidade</a>.
+        Ao continuar, você concorda com nossos <a href="#">Termos de Uso</a> e{' '}
+        <a href="#">Política de Privacidade</a>.
       </FieldDescription>
     </div>
-  )
+  );
 }

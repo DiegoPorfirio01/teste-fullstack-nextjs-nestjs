@@ -1,20 +1,20 @@
-import { SidebarWithProfile } from "@/components/dashboard/sidebar-with-profile"
-import { SidebarSkeleton } from "@/components/dashboard/sidebar-skeleton"
-import { SiteHeader } from "@/components/dashboard/site-header"
-import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar"
-import { Suspense } from "react"
+import { SidebarWithProfile } from '@/components/dashboard/sidebar-with-profile';
+import { SidebarSkeleton } from '@/components/dashboard/sidebar-skeleton';
+import { SiteHeader } from '@/components/dashboard/site-header';
+import { SidebarInset, SidebarProvider } from '@/components/ui/sidebar';
+import { Suspense } from 'react';
 
 export default function DashboardLayout({
   children,
 }: {
-  children: React.ReactNode
+  children: React.ReactNode;
 }) {
   return (
     <SidebarProvider
       style={
         {
-          "--sidebar-width": "calc(var(--spacing) * 72)",
-          "--header-height": "calc(var(--spacing) * 12)",
+          '--sidebar-width': 'calc(var(--spacing) * 72)',
+          '--header-height': 'calc(var(--spacing) * 12)',
         } as React.CSSProperties
       }
     >
@@ -30,5 +30,5 @@ export default function DashboardLayout({
         </div>
       </SidebarInset>
     </SidebarProvider>
-  )
+  );
 }

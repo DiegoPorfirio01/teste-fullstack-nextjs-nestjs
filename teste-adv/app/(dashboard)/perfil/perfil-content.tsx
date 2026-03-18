@@ -1,6 +1,6 @@
-"use client"
+'use client';
 
-import { useActionState } from "react"
+import { useActionState } from 'react';
 import {
   AlertDialog,
   AlertDialogCancel,
@@ -10,39 +10,39 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
   AlertDialogTrigger,
-} from "@/components/ui/alert-dialog"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { Button } from "@/components/ui/button"
+} from '@/components/ui/alert-dialog';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Button } from '@/components/ui/button';
 import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { FormProfileDetails } from "@/components/dashboard/forms/form-profile-details"
-import { FormPerfil } from "@/components/dashboard/forms/form-perfil"
-import { deleteAccountAction } from "@/actions/profile"
-import type { DeleteAccountState } from "@/types"
-import { PageContainer, PageHeader, PageSection } from "@/components/dashboard/page-layout"
+} from '@/components/ui/card';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { FormProfileDetails } from '@/components/dashboard/forms/form-profile-details';
+import { FormPerfil } from '@/components/dashboard/forms/form-perfil';
+import { deleteAccountAction } from '@/actions/profile';
+import type { DeleteAccountState } from '@/types';
 import {
-  AlertTriangleIcon,
-  LockIcon,
-  UserIcon,
-} from "lucide-react"
+  PageContainer,
+  PageHeader,
+  PageSection,
+} from '@/components/dashboard/page-layout';
+import { AlertTriangleIcon, LockIcon, UserIcon } from 'lucide-react';
 
 type Props = {
-  fullName: string
-  email: string
-  avatarUrl: string
-}
+  fullName: string;
+  email: string;
+  avatarUrl: string;
+};
 
 export function PerfilContent({ fullName, email, avatarUrl }: Props) {
   const [deleteState, deleteFormAction, isDeleting] = useActionState<
     DeleteAccountState | undefined,
     FormData
-  >(deleteAccountAction, undefined)
+  >(deleteAccountAction, undefined);
 
   return (
     <PageContainer>
@@ -71,11 +71,17 @@ export function PerfilContent({ fullName, email, avatarUrl }: Props) {
       <PageSection>
         <Tabs defaultValue="profile" className="flex flex-col gap-6">
           <TabsList variant="line" className="h-fit gap-1 bg-transparent p-0">
-            <TabsTrigger value="profile" className="gap-2 data-active:border-primary">
+            <TabsTrigger
+              value="profile"
+              className="gap-2 data-active:border-primary"
+            >
               <UserIcon className="size-4" />
               Perfil
             </TabsTrigger>
-            <TabsTrigger value="security" className="gap-2 data-active:border-primary">
+            <TabsTrigger
+              value="security"
+              className="gap-2 data-active:border-primary"
+            >
               <LockIcon className="size-4" />
               Segurança
             </TabsTrigger>
@@ -144,7 +150,8 @@ export function PerfilContent({ fullName, email, avatarUrl }: Props) {
                         <AlertDialogTitle>Excluir sua conta?</AlertDialogTitle>
                         <AlertDialogDescription>
                           Esta ação é irreversível. Todos os seus dados serão
-                          permanentemente removidos. Tem certeza que deseja continuar?
+                          permanentemente removidos. Tem certeza que deseja
+                          continuar?
                         </AlertDialogDescription>
                       </AlertDialogHeader>
                       <form action={deleteFormAction}>
@@ -155,7 +162,7 @@ export function PerfilContent({ fullName, email, avatarUrl }: Props) {
                             variant="destructive"
                             disabled={isDeleting}
                           >
-                            {isDeleting ? "Excluindo…" : "Excluir conta"}
+                            {isDeleting ? 'Excluindo…' : 'Excluir conta'}
                           </Button>
                         </AlertDialogFooter>
                       </form>
@@ -168,5 +175,5 @@ export function PerfilContent({ fullName, email, avatarUrl }: Props) {
         </Tabs>
       </PageSection>
     </PageContainer>
-  )
+  );
 }

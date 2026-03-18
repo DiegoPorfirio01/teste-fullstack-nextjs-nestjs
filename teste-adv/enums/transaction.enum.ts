@@ -6,7 +6,8 @@ export const TransactionType = {
   TRANSFER: 'transfer',
 } as const;
 
-export type TransactionType = (typeof TransactionType)[keyof typeof TransactionType];
+export type TransactionType =
+  (typeof TransactionType)[keyof typeof TransactionType];
 
 export const TransactionStatus = {
   COMPLETED: 'completed',
@@ -31,4 +32,5 @@ export const TransactionTabFilter = {
   REVERTED: 'reverted',
 } as const;
 
-export type TransactionTabFilter = (typeof TransactionTabFilter)[keyof typeof TransactionTabFilter];
+export type TransactionTabFilter =
+  (typeof TransactionTabFilter)[keyof typeof TransactionTabFilter];

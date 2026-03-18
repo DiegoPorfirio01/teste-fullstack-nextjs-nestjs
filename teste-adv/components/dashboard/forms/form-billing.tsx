@@ -1,42 +1,42 @@
-"use client"
+'use client';
 
-import { useEffect, useRef } from "react"
-import { useActionState } from "react"
-import { showSuccessToast } from "@/lib/toast"
-import { TOAST_MESSAGES } from "@/constants/toast-messages"
-import { Button } from "@/components/ui/button"
+import { useEffect, useRef } from 'react';
+import { useActionState } from 'react';
+import { showSuccessToast } from '@/lib/toast';
+import { TOAST_MESSAGES } from '@/constants/toast-messages';
+import { Button } from '@/components/ui/button';
 import {
   Field,
   FieldError,
   FieldGroup,
   FieldLegend,
   FieldSet,
-} from "@/components/ui/field"
-import { buyCreditsAction } from "@/actions/billing"
-import type { BuyCreditsState } from "@/types"
-import { CREDIT_PACKAGES } from "@/constants"
-import { CreditCardIcon } from "lucide-react"
+} from '@/components/ui/field';
+import { buyCreditsAction } from '@/actions/billing';
+import type { BuyCreditsState } from '@/types';
+import { CREDIT_PACKAGES } from '@/constants';
+import { CreditCardIcon } from 'lucide-react';
 
 export function FormBilling({
   defaultPackageId,
   onSuccess,
 }: {
-  defaultPackageId?: string
-  onSuccess?: () => void
+  defaultPackageId?: string;
+  onSuccess?: () => void;
 }) {
   const [state, formAction, isPending] = useActionState<
     BuyCreditsState | undefined,
     FormData
-  >(buyCreditsAction, undefined)
+  >(buyCreditsAction, undefined);
 
-  const onSuccessRef = useRef(onSuccess)
-  onSuccessRef.current = onSuccess
+  const onSuccessRef = useRef(onSuccess);
+  onSuccessRef.current = onSuccess;
   useEffect(() => {
     if (state?.success) {
-      showSuccessToast(TOAST_MESSAGES.CREDITS_PURCHASED)
-      onSuccessRef.current?.()
+      showSuccessToast(TOAST_MESSAGES.CREDITS_PURCHASED);
+      onSuccessRef.current?.();
     }
-  }, [state?.success])
+  }, [state?.success]);
 
   return (
     <form action={formAction}>
@@ -52,7 +52,7 @@ export function FormBilling({
             <FieldLegend variant="label">Selecione um pacote</FieldLegend>
             <div className="flex flex-col gap-2">
               {CREDIT_PACKAGES.map((pkg) => {
-                const Icon = pkg.icon
+                const Icon = pkg.icon;
                 return (
                   <label
                     key={pkg.id}
@@ -90,27 +90,23 @@ export function FormBilling({
                       </span>
                     )}
                   </label>
-                )
+                );
               })}
             </div>
             <FieldError
               errors={
-                state?.fieldErrors?.packageId?.map((m) => ({ message: m })) ?? []
+                state?.fieldErrors?.packageId?.map((m) => ({ message: m })) ??
+                []
               }
             />
           </FieldSet>
         </Field>
 
-        <Button
-          type="submit"
-          disabled={isPending}
-          className="w-full"
-          size="lg"
-        >
+        <Button type="submit" disabled={isPending} className="w-full" size="lg">
           <CreditCardIcon data-icon="inline-start" />
-          {isPending ? "Processando…" : "Confirmar compra"}
+          {isPending ? 'Processando…' : 'Confirmar compra'}
         </Button>
       </FieldGroup>
     </form>
-  )
+  );
 }

@@ -1,4 +1,4 @@
-import z from "zod";
+import z from 'zod';
 
 /** Schema para resposta de autenticação da API */
 export const authResponseSchema = z.object({

@@ -1,1 +1,1 @@
-export * from "./transaction.enum"
+export * from './transaction.enum';
