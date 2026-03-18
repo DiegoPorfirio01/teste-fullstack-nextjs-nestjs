@@ -51,7 +51,6 @@ services:
     env_file:
       - .env
     environment:
-      # OpenTelemetry: envia traces para Tempo (Grafana Explore)
       OTEL_EXPORTER_OTLP_ENDPOINT: http://tempo:4318
     healthcheck:
       test: ["CMD", "wget", "-q", "--spider", "http://127.0.0.1:3001/v1/metrics"]
@@ -59,7 +58,6 @@ services:
       timeout: 3s
       retries: 3
       start_period: 10s
-    command: ["node", "-r", "./dist/src/instrumentation.js", "dist/src/main.js"]
     depends_on:
       postgres:
         condition: service_healthy

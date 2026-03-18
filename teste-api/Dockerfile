@@ -17,7 +17,7 @@ RUN pnpm install --frozen-lockfile
 # Copy source code
 COPY . .
 
-# Build application
+# Build application (prisma.config.ts fornece datasource.url com fallback para build)
 RUN pnpm run build
 
 # Prune devDependencies for production
@@ -43,9 +43,12 @@ COPY --from=build --chown=nestjs:nodejs /usr/src/app/package.json ./
 COPY --from=build --chown=nestjs:nodejs /usr/src/app/pnpm-lock.yaml ./
 COPY --from=build --chown=nestjs:nodejs /usr/src/app/node_modules ./node_modules
 COPY --from=build --chown=nestjs:nodejs /usr/src/app/dist ./dist
+COPY --from=build --chown=nestjs:nodejs /usr/src/app/prisma ./prisma
+COPY --from=build --chown=nestjs:nodejs /usr/src/app/prisma.config.ts ./
+COPY --from=build --chown=nestjs:nodejs /usr/src/app/scripts ./scripts
 
 USER nestjs
 
 EXPOSE 3001
 
-CMD ["pnpm", "run", "start:prod"]
+CMD ["sh", "./scripts/docker-entrypoint.sh"]
