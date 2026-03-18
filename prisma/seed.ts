@@ -12,12 +12,12 @@ const adapter = new PrismaPg({ connectionString: url });
 const prisma = new PrismaClient({ adapter });
 
 async function main() {
-  const existing = await prisma.user.findUnique({
+  const hash = await bcrypt.hash('password123', 10);
+
+  const admin = await prisma.user.findUnique({
     where: { email: 'admin@example.com' },
   });
-
-  if (!existing) {
-    const hash = await bcrypt.hash('password123', 10);
+  if (!admin) {
     await prisma.user.create({
       data: {
         email: 'admin@example.com',
@@ -30,6 +30,24 @@ async function main() {
     console.log('Admin user created: admin@example.com / password123');
   } else {
     console.log('Admin user already exists');
+  }
+
+  const user2 = await prisma.user.findUnique({
+    where: { email: 'user2@example.com' },
+  });
+  if (!user2) {
+    await prisma.user.create({
+      data: {
+        email: 'user2@example.com',
+        passwordHash: hash,
+        name: 'User Two',
+        role: 'user',
+        status: 'active',
+      },
+    });
+    console.log('User2 created: user2@example.com / password123');
+  } else {
+    console.log('User2 already exists');
   }
 }
 
