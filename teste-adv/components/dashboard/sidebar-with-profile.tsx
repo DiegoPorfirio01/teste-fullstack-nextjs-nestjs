@@ -8,12 +8,12 @@ export async function SidebarWithProfile() {
       ? {
           name: result.data.fullName,
           email: result.data.email,
-          avatar: result.data.avatarUrl ?? 'https://via.placeholder.com/150',
+          avatar: result.data.avatarUrl ?? 'https://github.com/diegoporfirio01.png',
         }
       : {
           name: 'Usuário',
           email: '',
-          avatar: 'https://via.placeholder.com/150',
+          avatar: 'https://github.com/diegoporfirio01.png',
         };
 
   return <AppSidebar variant="inset" user={user} />;

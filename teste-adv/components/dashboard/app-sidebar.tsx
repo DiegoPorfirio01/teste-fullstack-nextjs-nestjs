@@ -47,7 +47,7 @@ export function AppSidebar({
   const displayUser = user ?? {
     name: 'Usuário',
     email: 'usuario@exemplo.com',
-    avatar: 'https://via.placeholder.com/150',
+    avatar: 'https://github.com/diegoporfirio01.png',
   };
 
   return (

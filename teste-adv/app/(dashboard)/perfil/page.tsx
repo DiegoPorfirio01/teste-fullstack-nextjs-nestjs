@@ -15,14 +15,14 @@ export default async function PerfilPage() {
       : {
           fullName: 'Usuário',
           email: 'usuario@exemplo.com',
-          avatarUrl: 'https://via.placeholder.com/150',
+          avatarUrl: 'https://github.com/diegoporfirio01.png',
         };
 
   return (
     <PerfilContent
       fullName={user.fullName}
       email={user.email}
-      avatarUrl={user.avatarUrl ?? 'https://via.placeholder.com/150'}
+      avatarUrl={user.avatarUrl ?? 'https://github.com/diegoporfirio01.png'}
     />
   );
 }
