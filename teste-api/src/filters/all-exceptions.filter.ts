@@ -95,8 +95,15 @@ export class AllExceptionsFilter implements ExceptionFilter {
     requestId: string,
   ): void {
     const status = HttpStatus.INTERNAL_SERVER_ERROR;
-    const error =
-      exception instanceof Error ? exception : new Error(String(exception));
+    const message =
+      exception instanceof Error
+        ? exception.message
+        : typeof exception === 'string'
+          ? exception
+          : typeof exception === 'object' && exception !== null
+            ? JSON.stringify(exception)
+            : String(exception as string | number | boolean | null | undefined);
+    const error = exception instanceof Error ? exception : new Error(message);
     const stack = error.stack ?? '';
 
     this.logger.error(error.message, {

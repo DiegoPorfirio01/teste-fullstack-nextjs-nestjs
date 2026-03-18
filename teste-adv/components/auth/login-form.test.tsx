@@ -11,6 +11,7 @@ vi.mock('@/actions/auth', () => ({
 // Next.js Image and Link
 vi.mock('next/image', () => ({
   default: ({ src, alt }: { src: string; alt: string }) => (
+    // eslint-disable-next-line @next/next/no-img-element -- mock for tests
     <img src={src} alt={alt} />
   ),
 }));

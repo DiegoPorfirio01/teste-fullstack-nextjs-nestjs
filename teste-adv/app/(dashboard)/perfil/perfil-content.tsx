@@ -39,7 +39,7 @@ type Props = {
 };
 
 export function PerfilContent({ fullName, email, avatarUrl }: Props) {
-  const [deleteState, deleteFormAction, isDeleting] = useActionState<
+  const [, deleteFormAction, isDeleting] = useActionState<
     DeleteAccountState | undefined,
     FormData
   >(deleteAccountAction, undefined);

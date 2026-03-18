@@ -13,10 +13,16 @@ export class CustomThrottlerGuard extends ThrottlerGuard {
   protected getTracker(req: Record<string, unknown>): Promise<string> {
     const ip = typeof req.ip === 'string' ? req.ip : 'unknown';
     const { headers } = req;
-    const userAgent =
+    const uaRaw =
       headers && typeof headers === 'object' && 'user-agent' in headers
-        ? String(headers['user-agent'])
-        : '';
+        ? (headers as Record<string, unknown>)['user-agent']
+        : undefined;
+    const userAgent =
+      typeof uaRaw === 'string'
+        ? uaRaw
+        : Array.isArray(uaRaw)
+          ? ((uaRaw[0] as string) ?? '')
+          : '';
     return Promise.resolve(`${ip}-${userAgent}`);
   }
 }

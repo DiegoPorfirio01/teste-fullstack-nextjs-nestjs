@@ -23,7 +23,7 @@ vi.mock('next/headers', () => ({
 vi.mock('next/navigation', () => ({
   redirect: vi.fn(() => {
     const err = new Error('NEXT_REDIRECT');
-    (err as any).NEXT_REDIRECT = true;
+    (err as Error & { NEXT_REDIRECT?: boolean }).NEXT_REDIRECT = true;
     throw err;
   }),
 }));

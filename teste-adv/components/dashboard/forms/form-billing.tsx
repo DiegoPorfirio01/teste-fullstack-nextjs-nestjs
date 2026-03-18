@@ -30,7 +30,9 @@ export function FormBilling({
   >(buyCreditsAction, undefined);
 
   const onSuccessRef = useRef(onSuccess);
-  onSuccessRef.current = onSuccess;
+  useEffect(() => {
+    onSuccessRef.current = onSuccess;
+  }, [onSuccess]);
   useEffect(() => {
     if (state?.success) {
       showSuccessToast(TOAST_MESSAGES.CREDITS_PURCHASED);
@@ -58,6 +60,7 @@ export function FormBilling({
                     key={pkg.id}
                     className="flex cursor-pointer items-center gap-3 rounded-xl border p-4 transition-all has-checked:border-primary has-checked:bg-primary/5 has-checked:ring-2 has-checked:ring-primary/20 hover:border-primary/50"
                   >
+                    {/* eslint-disable-next-line jsx-a11y/role-supports-aria-props */}
                     <input
                       type="radio"
                       name="packageId"
